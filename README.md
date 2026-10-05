@@ -1,23 +1,16 @@
-# Erik H. Stenersen · portfolio
+# Erik H. Stenersen
 
-Personal site for a QA Chapter Lead based in Luxembourg. Plain HTML, CSS and JavaScript, with no build step.
+QA Chapter Lead at Salonkee, Luxembourg.
 
-## What's on the page
-- A hero that plays a test run, a skills ticker, and sections for Luup, experience and work beyond testing.
-- A bug hunt: start it and five bugs are planted on the page for the visitor to find and file.
-- A command palette (Ctrl or ⌘ + K), a light and dark theme, and a scroll progress bar.
+**Live site: [megaschein.github.io](https://megaschein.github.io)**
 
-## Run it locally
-```sh
-python3 -m http.server 4173
-```
-Then open http://localhost:4173.
+[![tests](https://github.com/MegaSchein/MegaSchein.github.io/actions/workflows/tests.yml/badge.svg)](https://github.com/MegaSchein/MegaSchein.github.io/actions/workflows/tests.yml)
 
-## Tests
-The Playwright suite checks the content, links, accessibility basics, the phone layout and every interactive feature. It also runs in GitHub Actions on each push.
+## About this site
+Hand-built with plain HTML, CSS and JavaScript, with no framework. It has a bug hunt that plants five bugs on the page, a command palette (Ctrl or ⌘ + K), and light and dark themes.
 
-```sh
-npm install
-npx playwright install chromium
-npm test
-```
+Being a QA lead, I test it like a product. A Playwright suite covers the content, links, accessibility basics, the phone layout and every interactive feature, and it runs in GitHub Actions on each push.
+
+[LinkedIn](https://www.linkedin.com/in/stenersen/)
+
+© 2026 Erik H. Stenersen. All rights reserved.

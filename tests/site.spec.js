@@ -20,10 +20,19 @@ test('every link points to a real https address', async ({ page }) => {
   for (const href of hrefs) expect(href).toMatch(/^https:\/\/[^/]+\.[a-z]{2,}/);
 });
 
-test('experience years are in descending order and plausible', async ({ page }) => {
-  const years = (await page.locator('.when').allTextContents()).filter((t) => /^\d{4}$/.test(t)).map(Number);
-  expect([...years].sort((a, b) => b - a)).toEqual(years);
-  for (const y of years) expect(y).toBeLessThanOrEqual(new Date().getFullYear());
+test('experience is grouped by area and each group runs newest first', async ({ page }) => {
+  const heads = await page.locator('.exp-group > h3').allTextContents();
+  expect(heads).toEqual(['Quality and testing', 'Process and marketing', 'Design and creative work', 'Education', 'Earlier work']);
+  for (const group of await page.locator('.exp-group').all()) {
+    const years = (await group.locator('.when').allTextContents()).filter((t) => /^\d{4}$/.test(t)).map(Number);
+    expect([...years].sort((a, b) => b - a)).toEqual(years);
+    for (const y of years) expect(y).toBeLessThanOrEqual(new Date().getFullYear());
+  }
+});
+
+test('hospitality is kept apart from the testing roles', async ({ page }) => {
+  await expect(page.locator('#exp-qa')).not.toContainText('Hospitality');
+  await expect(page.locator('#exp-early')).toContainText('Hospitality');
 });
 
 test('images have alt text', async ({ page }) => {
@@ -100,4 +109,11 @@ test('languages are listed separately from tools', async ({ page }) => {
 test('phone screenshot has alt text and the Luup link goes to luup.lu', async ({ page }) => {
   await expect(page.locator('.phone img')).toHaveAttribute('alt', /Luup/);
   await expect(page.getByRole('link', { name: 'Open luup.lu' })).toHaveAttribute('href', 'https://luup.lu');
+});
+
+test('share preview uses the share card, not a page screenshot', async ({ page }) => {
+  const img = await page.locator('meta[property="og:image"]').getAttribute('content');
+  expect(img).toBe('https://megaschein.github.io/images/share-card.png');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', /Stenersen/);
 });
