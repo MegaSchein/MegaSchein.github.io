@@ -210,22 +210,56 @@
   <section class="split" id="beyond" data-suite="beyond testing">
     <h2>Beyond testing</h2>
     <div class="body">
-      <p class="lede prose">Before QA I worked in design and marketing. I still make visuals, photography and sound. See the <a href="https://erikhstenersen.wixsite.com/mysite/projects">projects</a> or read <a href="https://erikhstenersen.wixsite.com/mysite/about">more about me</a>.</p>
-      <div class="tiles">
-        <a class="tile tile-visuals" href="https://erikhstenersen.wixsite.com/mysite/visuals">
-          <img src="images/danish.png" width="700" height="525" alt="Illustration of a Danish pastry" loading="lazy">
-          <span class="tile-name">Visuals</span>
-        </a>
-        <a class="tile tile-photo" href="https://erikhstenersen.wixsite.com/mysite/photography">
-          <span class="tile-name">Photography</span>
-          <span class="tile-more">See it at EHS Designs</span>
-        </a>
-        <a class="tile tile-sound" href="https://erikhstenersen.wixsite.com/mysite/soundadvice">
-          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-          <span class="tile-name">Sound Advice</span>
-          <span class="tile-more">See it at EHS Designs</span>
-        </a>
+      <p class="lede prose">Before QA I worked in design and marketing. I still take photos, make music visuals and design things.</p>
+
+      <h3 class="beyond-h">Photography</h3>
+      <div class="carousel" id="carousel" role="region" aria-roledescription="carousel" aria-label="Photography">
+        <div class="car-track" id="car-track" tabindex="0">
+          <figure class="slide" aria-roledescription="slide" aria-label="1 of 8"><img src="images/photos/harbour-houses.jpg" width="1400" height="1050" alt="Colourful townhouses and moored boats along a harbour canal under a blue sky" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="2 of 8"><img src="images/photos/bridge-rainbow.jpg" width="1024" height="768" alt="A rainbow in the mist beneath a steel arch bridge" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="3 of 8"><img src="images/photos/monument-day.jpg" width="1400" height="933" alt="A row of stone columns on a hill under a clear blue sky with the moon above" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="4 of 8"><img src="images/photos/monument-dusk.jpg" width="1400" height="933" alt="A round stone monument against a pink and purple dusk sky" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="5 of 8"><img src="images/photos/sunset-hills.jpg" width="1400" height="933" alt="The sun setting between dark hills in an orange and blue sky" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="6 of 8"><img src="images/photos/coast-clouds.jpg" width="1400" height="1050" alt="A coastal city seen from a mountain, with cloud rolling over the ridge" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="7 of 8"><img src="images/photos/river-woods.jpg" width="1400" height="933" alt="A clear river running through green woodland" loading="lazy"></figure>
+          <figure class="slide" aria-roledescription="slide" aria-label="8 of 8"><img src="images/photos/swan-blue.jpg" width="1400" height="964" alt="A white swan on dark blue water with the reflection of a bridge" loading="lazy"></figure>
+        </div>
+        <div class="car-controls">
+          <button type="button" id="car-prev" aria-label="Previous photo">Previous</button>
+          <button type="button" id="car-play" aria-label="Pause the slideshow">Pause</button>
+          <button type="button" id="car-next" aria-label="Next photo">Next</button>
+          <span id="car-count" aria-live="off">1 of 8</span>
+        </div>
       </div>
+      <p class="more"><a href="https://erikhstenersen.wixsite.com/mysite/photography">More photography</a></p>
+
+      <div class="cards">
+        <article class="card card-music">
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <h3>Wookie Productions</h3>
+          <p>Audio-reactive music videos for my YouTube channel, made in After Effects since 2015. The channel has passed 165,000 views, and one remix video has more than 150,000.</p>
+          <p class="links"><a href="https://www.youtube.com/user/WookiePr0ductions/">Watch on YouTube</a> <a href="https://erikhstenersen.wixsite.com/mysite/visuals">More visuals</a></p>
+        </article>
+        <article class="card card-sound">
+          <img src="images/sound-advice-logo.jpg" width="600" height="113" alt="Sound Advice" loading="lazy">
+          <p>A lifestyle and clothing brand I co-founded in 2020. It aims to start positive conversations about mental health and to point people to support. Its motto: sometimes it's okay if all you did today was dance.</p>
+          <p class="links"><a href="https://erikhstenersen.wixsite.com/mysite/soundadvice">About Sound Advice</a></p>
+        </article>
+      </div>
+
+      <h3 class="beyond-h">Design work</h3>
+      <p class="prose">Posters, logos and campaigns for bars, venues and other clients around Edinburgh.</p>
+      <ul class="work">
+          <li><figure><img src="images/work/golf-tavern.jpg" width="420" height="595" alt="The Golf Tavern: rules-for-entry poster for a golf competition" loading="lazy"><figcaption><strong>The Golf Tavern</strong>Rules-for-entry poster for a golf competition</figcaption></figure></li>
+          <li><figure><img src="images/work/theatre-royal-bar.jpg" width="533" height="278" alt="Theatre Royal Bar: logo for an edinburgh bar" loading="lazy"><figcaption><strong>Theatre Royal Bar</strong>Logo for an Edinburgh bar</figcaption></figure></li>
+          <li><figure><img src="images/work/wee-pub.jpg" width="700" height="991" alt="The Wee Pub: promo poster for a winter whiskey pop-up" loading="lazy"><figcaption><strong>The Wee Pub</strong>Promo poster for a winter whiskey pop-up</figcaption></figure></li>
+          <li><figure><img src="images/work/napier-mirror-mirror.jpg" width="595" height="842" alt="Edinburgh Napier University: awareness poster on body dysmorphia" loading="lazy"><figcaption><strong>Edinburgh Napier University</strong>Awareness poster on body dysmorphia</figcaption></figure></li>
+          <li><figure><img src="images/work/nhs.jpg" width="700" height="394" alt="NHS: clap for our carers graphic" loading="lazy"><figcaption><strong>NHS</strong>Clap for our carers graphic</figcaption></figure></li>
+          <li><figure><img src="images/work/bawbag-tee.jpg" width="700" height="656" alt="Bawbag: t-shirt design raising awareness of testicular cancer" loading="lazy"><figcaption><strong>Bawbag</strong>T-shirt design raising awareness of testicular cancer</figcaption></figure></li>
+          <li><figure><img src="images/work/mascara-lies.jpg" width="700" height="538" alt="Mascara Lies: cover art for a music release" loading="lazy"><figcaption><strong>Mascara Lies</strong>Cover art for a music release</figcaption></figure></li>
+          <li><figure><img src="images/work/stapp.jpg" width="700" height="662" alt="Stapp: promo ad for a study app" loading="lazy"><figcaption><strong>Stapp</strong>Promo ad for a study app</figcaption></figure></li>
+      </ul>
+      <p class="more"><a href="https://erikhstenersen.wixsite.com/mysite/projects">See all projects</a></p>
     </div>
   </section>
 

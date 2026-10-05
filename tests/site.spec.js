@@ -117,3 +117,67 @@ test('share preview uses the share card, not a page screenshot', async ({ page }
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', /Stenersen/);
 });
+
+test.describe('beyond testing', () => {
+  test('photo carousel starts on a valid photo and moves with the buttons', async ({ page }) => {
+    const total = await page.locator('#car-track .slide').count();
+    expect(total).toBe(8);
+    const start = Number((await page.locator('#car-count').textContent()).split(' ')[0]);
+    expect(start).toBeGreaterThanOrEqual(1);
+    expect(start).toBeLessThanOrEqual(total);
+    await page.getByRole('button', { name: 'Next photo' }).click();
+    const next = (start % total) + 1;
+    await expect(page.locator('#car-count')).toHaveText(`${next} of ${total}`);
+    await page.getByRole('button', { name: 'Previous photo' }).click();
+    await expect(page.locator('#car-count')).toHaveText(`${start} of ${total}`);
+  });
+
+  test('slideshow can be paused and resumed', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.reload();
+    const play = page.locator('#car-play');
+    await expect(play).toHaveText('Pause');
+    await play.click();
+    await expect(play).toHaveText('Play');
+    await play.click();
+    await expect(play).toHaveText('Pause');
+  });
+
+  test('slideshow starts paused when the visitor prefers reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.reload();
+    await expect(page.locator('#car-play')).toHaveText('Play');
+  });
+
+  test('every photo and design image has a description', async ({ page }) => {
+    const imgs = page.locator('#beyond img');
+    const n = await imgs.count();
+    expect(n).toBeGreaterThanOrEqual(17);
+    for (let i = 0; i < n; i++) expect((await imgs.nth(i).getAttribute('alt'))?.length).toBeGreaterThan(8);
+  });
+
+  test('design work shows eight pieces and leaves out the Krav Maga one', async ({ page }) => {
+    await expect(page.locator('.work li')).toHaveCount(8);
+    const html = (await page.locator('#beyond').innerHTML()).toLowerCase();
+    expect(html).not.toContain('krav');
+  });
+
+  test('the music and brand cards link to real pages', async ({ page }) => {
+    await expect(page.getByRole('link', { name: 'Watch on YouTube' })).toHaveAttribute('href', 'https://www.youtube.com/user/WookiePr0ductions/');
+    await expect(page.getByRole('link', { name: 'About Sound Advice' })).toHaveAttribute('href', 'https://erikhstenersen.wixsite.com/mysite/soundadvice');
+    const html = await page.locator('#beyond').innerHTML();
+    expect(html).not.toContain('soundadvice.store');
+  });
+
+  test('the co-founder is not named on the page', async ({ page }) => {
+    expect(await page.locator('body').innerText()).not.toMatch(/Dina|Celina/);
+  });
+});
+
+test('keyboard focus shows a visible outline', async ({ page }) => {
+  await page.locator('#hunt-toggle').focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  const style = await page.locator('#hunt-toggle').evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(style).not.toBe('none');
+});
