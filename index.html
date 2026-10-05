@@ -50,7 +50,7 @@
     </div>
     <div class="term" aria-label="Summary of what I do">
       <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>run: erik --all</span></div>
-      <pre class="run"><span class="l"><b>PASS</b> leads QA at Salonkee</span><span class="l"><b>PASS</b> automates end-to-end tests with Cypress and Selenium</span><span class="l"><b>PASS</b> builds and ships his own product, Luup</span><span class="l"><b>PASS</b> speaks 5 languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="5 passed, 0 failed">4 passed, 0 failed</span></pre>
+      <pre class="run"><span class="l"><b>PASS</b> leads QA at Salonkee</span><span class="l"><b>PASS</b> turns manual work into automations, once saved a business 7 working days a year</span><span class="l"><b>PASS</b> co-founded a clothing brand about mental health</span><span class="l"><b>PASS</b> speaks 5 languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="5 passed, 0 failed">4 passed, 0 failed</span></pre>
     </div>
   </div>
 </header>
@@ -76,30 +76,8 @@
     <h2>What I do</h2>
     <div class="body prose">
       <p class="lede">I lead quality. That means deciding how a team tests, what gets automated, and which bugs are worth stopping a release for.</p>
-      <p>I came to QA the long way: freelance design and marketing, then business process analysis. So I look for the manual work that slows people down and automate it. One automation project I led saved a business seven working days a year.</p>
+      <p>I came to QA the long way: freelance design and marketing, then business process analysis. So I look for the manual work that slows people down and automate it. At Salonkee I built Cypress tests that run in CI/CD, took charge of planning the B2C app launch, and mentored teammates.</p>
       <p>I studied Digital Media and Interaction Design, so I also care whether a product feels right to use, not only whether it passes.</p>
-    </div>
-  </section>
-
-  <section class="split" id="luup" data-suite="Luup">
-    <h2>Luup</h2>
-    <div class="body">
-      <div class="luup-card">
-        <div class="luup-text">
-          <p class="lede">A peer-to-peer marketplace for buying, selling and sharing locally in Luxembourg. It is live, and I built it end to end.</p>
-          <ul class="plain">
-            <li>Angular 19 web app and an Expo (React Native) mobile app</li>
-            <li>Node and Express API on PostgreSQL, deployed with Docker Compose and GitHub Actions</li>
-            <li data-bug="contrast">AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
-            <li>Seven interface languages, with listings and chat translated automatically</li>
-            <li>Error monitoring with Sentry and server metrics</li>
-          </ul>
-          <p><a class="pill" href="https://luup.lu">Open luup.lu</a></p>
-        </div>
-        <figure class="phone">
-          <img src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
-        </figure>
-      </div>
     </div>
   </section>
 
@@ -215,7 +193,25 @@
   <section class="split" id="beyond" data-suite="beyond testing">
     <h2>Beyond testing</h2>
     <div class="body">
-      <p class="lede prose">Before QA I worked in design and marketing. I still take photos, make music visuals and design things.</p>
+      <p class="lede prose">Before QA I worked in design and marketing. Outside work I build my own product, take photos, make music visuals and design things.</p>
+
+      <h3 class="beyond-h">Something I built</h3>
+      <div class="luup-card" id="luup">
+        <div class="luup-text">
+          <p class="lede">A peer-to-peer marketplace for buying, selling and sharing locally in Luxembourg. It is live, and I built it end to end.</p>
+          <ul class="plain">
+            <li>Angular 19 web app and an Expo (React Native) mobile app</li>
+            <li>Node and Express API on PostgreSQL, deployed with Docker Compose and GitHub Actions</li>
+            <li data-bug="contrast">AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
+            <li>Seven interface languages, with listings and chat translated automatically</li>
+            <li>Error monitoring with Sentry and server metrics</li>
+          </ul>
+          <p><a class="pill" href="https://luup.lu">Open luup.lu</a></p>
+        </div>
+        <figure class="phone">
+          <img src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
+        </figure>
+      </div>
 
       <h3 class="beyond-h">Photography</h3>
       <div class="carousel" id="carousel" role="region" aria-roledescription="carousel" aria-label="Photography">
@@ -236,19 +232,18 @@
           <span id="car-count" aria-live="off">1 of 8</span>
         </div>
       </div>
-      <p class="more"><a href="https://erikhstenersen.wixsite.com/mysite/photography">More photography</a></p>
 
       <div class="cards">
         <article class="card card-music">
           <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
           <h3>Wookie Productions</h3>
           <p>Audio-reactive music videos for my YouTube channel, made in After Effects since 2015. The channel has passed 165,000 views, and one remix video has more than 150,000.</p>
-          <p class="links"><a href="https://www.youtube.com/user/WookiePr0ductions/">Watch on YouTube</a> <a href="https://erikhstenersen.wixsite.com/mysite/visuals">More visuals</a></p>
+          <p class="links"><a href="https://www.youtube.com/user/WookiePr0ductions/">Watch on YouTube</a></p>
         </article>
         <article class="card card-sound">
           <img src="images/sound-advice-logo.jpg" width="600" height="113" alt="Sound Advice" loading="lazy">
-          <p>A lifestyle and clothing brand I co-founded in 2020. It aims to start positive conversations about mental health and to point people to support. Its motto: sometimes it's okay if all you did today was dance.</p>
-          <p class="links"><a href="https://erikhstenersen.wixsite.com/mysite/soundadvice">About Sound Advice</a></p>
+          <p>A lifestyle and clothing brand I co-founded in 2020. It set out to start positive conversations about mental health and to point people to support. Its motto was: sometimes it's okay if all you did today was dance.</p>
+          <p class="links"><a href="https://www.instagram.com/_soundadvice_/">Sound Advice on Instagram</a></p>
         </article>
       </div>
 
@@ -263,7 +258,6 @@
           <li><figure><img src="images/work/mascara-lies.jpg" width="700" height="538" alt="Mascara Lies: cover art for a music release" loading="lazy"><figcaption><strong>Mascara Lies</strong>Cover art for a music release</figcaption></figure></li>
           <li><figure><img src="images/work/stapp.jpg" width="700" height="662" alt="Stapp: promo ad for a study app" loading="lazy"><figcaption><strong>Stapp</strong>Promo ad for a study app</figcaption></figure></li>
       </ul>
-      <p class="more"><a href="https://erikhstenersen.wixsite.com/mysite/projects">See all projects</a></p>
     </div>
   </section>
 

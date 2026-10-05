@@ -152,7 +152,7 @@ test.describe('beyond testing', () => {
   test('every photo and design image has a description', async ({ page }) => {
     const imgs = page.locator('#beyond img');
     const n = await imgs.count();
-    expect(n).toBe(16);
+    expect(n).toBe(17);
     for (let i = 0; i < n; i++) expect((await imgs.nth(i).getAttribute('alt'))?.length).toBeGreaterThan(8);
   });
 
@@ -164,7 +164,7 @@ test.describe('beyond testing', () => {
 
   test('the music and brand cards link to real pages', async ({ page }) => {
     await expect(page.getByRole('link', { name: 'Watch on YouTube' })).toHaveAttribute('href', 'https://www.youtube.com/user/WookiePr0ductions/');
-    await expect(page.getByRole('link', { name: 'About Sound Advice' })).toHaveAttribute('href', 'https://erikhstenersen.wixsite.com/mysite/soundadvice');
+    await expect(page.getByRole('link', { name: 'Sound Advice on Instagram' })).toHaveAttribute('href', 'https://www.instagram.com/_soundadvice_/');
     const html = await page.locator('#beyond').innerHTML();
     expect(html).not.toContain('soundadvice.store');
   });
@@ -203,4 +203,50 @@ test('carousel stays on the right photo when a late scroll event arrives mid-ani
   await page.waitForTimeout(250);
   await page.locator('#car-prev').click();
   await expect(page.locator('#car-count')).toHaveText(`${start} of 8`);
+});
+
+test('Luup sits inside Beyond testing, after the experience', async ({ page }) => {
+  await expect(page.locator('#beyond #luup')).toHaveCount(1);
+  await expect(page.locator('section#luup')).toHaveCount(0);
+  const inOrder = await page.evaluate(() => {
+    const y = (sel) => document.querySelector(sel).getBoundingClientRect().top + scrollY;
+    return y('#experience') < y('#luup');
+  });
+  expect(inOrder).toBe(true);
+});
+
+test('hero introduces who Erik is with four facts in the same voice', async ({ page }) => {
+  const lines = await page.locator('.run .l:not(.sum)').allTextContents();
+  expect(lines).toHaveLength(4);
+  expect(lines.join(' ')).toContain('co-founded a clothing brand about mental health');
+  expect(lines.join(' ')).toContain('turns manual work into automations, once saved a business 7 working days a year');
+  expect(lines.join(' ')).not.toContain('his own product');
+});
+
+test('Beyond testing keeps visitors on the page instead of sending them to Wix for more', async ({ page }) => {
+  const hrefs = await page.locator('#beyond a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  for (const gone of ['/photography', '/visuals', '/projects']) {
+    expect(hrefs.some((h) => h.endsWith(gone)), gone).toBe(false);
+  }
+  await expect(page.getByText('More photography')).toHaveCount(0);
+  await expect(page.getByText('See all projects')).toHaveCount(0);
+});
+
+test('Sound Advice is described in the past tense', async ({ page }) => {
+  const card = page.locator('.card-sound');
+  await expect(card).toContainText('set out to start positive conversations');
+  await expect(card).toContainText('Its motto was');
+  await expect(card).not.toContainText('aims to');
+});
+
+test('What I do adds new facts instead of repeating the hero line', async ({ page }) => {
+  const about = await page.locator('#about').innerText();
+  expect(about).not.toMatch(/seven working days|7 working days/);
+  expect(about).toContain('Cypress tests that run in CI/CD');
+  await expect(page.locator('.run')).toContainText('7 working days a year');
+});
+
+test('Beyond testing no longer links to the old Wix site', async ({ page }) => {
+  const html = await page.locator('#beyond').innerHTML();
+  expect(html).not.toContain('wixsite.com');
 });
