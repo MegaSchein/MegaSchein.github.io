@@ -176,11 +176,13 @@
   let userPaused = reduceMotion;
   let hovering = false;
   let timer = null;
+  let animatingUntil = 0;
 
   const showCount = () => { countEl.textContent = `${index + 1} of ${slides.length}`; };
   const goTo = (n, smooth = true) => {
     index = (n + slides.length) % slides.length;
     const s = slides[index];
+    animatingUntil = Date.now() + 900;
     track.scrollTo({ left: s.offsetLeft - (track.clientWidth - s.clientWidth) / 2, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
     showCount();
   };
@@ -212,6 +214,7 @@
   track.addEventListener('scroll', () => {
     clearTimeout(settle);
     settle = setTimeout(() => {
+      if (Date.now() < animatingUntil) return;
       const mid = track.scrollLeft + track.clientWidth / 2;
       let best = 0;
       slides.forEach((s, i) => { if (Math.abs(s.offsetLeft + s.clientWidth / 2 - mid) < Math.abs(slides[best].offsetLeft + slides[best].clientWidth / 2 - mid)) best = i; });

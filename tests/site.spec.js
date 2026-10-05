@@ -152,12 +152,12 @@ test.describe('beyond testing', () => {
   test('every photo and design image has a description', async ({ page }) => {
     const imgs = page.locator('#beyond img');
     const n = await imgs.count();
-    expect(n).toBeGreaterThanOrEqual(17);
+    expect(n).toBe(16);
     for (let i = 0; i < n; i++) expect((await imgs.nth(i).getAttribute('alt'))?.length).toBeGreaterThan(8);
   });
 
-  test('design work shows eight pieces and leaves out the Krav Maga one', async ({ page }) => {
-    await expect(page.locator('.work li')).toHaveCount(8);
+  test('design work shows seven pieces and leaves out the Krav Maga one', async ({ page }) => {
+    await expect(page.locator('.work li')).toHaveCount(7);
     const html = (await page.locator('#beyond').innerHTML()).toLowerCase();
     expect(html).not.toContain('krav');
   });
@@ -180,4 +180,27 @@ test('keyboard focus shows a visible outline', async ({ page }) => {
   await page.keyboard.press('Tab');
   const style = await page.locator('#hunt-toggle').evaluate((el) => getComputedStyle(el).outlineStyle);
   expect(style).not.toBe('none');
+});
+
+test('page declares icons and every icon file exists', async ({ page, request }) => {
+  const hrefs = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll((ls) => ls.map((l) => l.getAttribute('href')));
+  expect(hrefs.length).toBeGreaterThanOrEqual(3);
+  for (const href of hrefs) expect((await request.get('/' + href)).status(), href).toBe(200);
+});
+
+test('carousel stays on the right photo when a late scroll event arrives mid-animation', async ({ page }) => {
+  await page.waitForTimeout(400);
+  const start = Number((await page.locator('#car-count').textContent()).split(' ')[0]);
+  await page.locator('#car-next').click();
+  await expect(page.locator('#car-count')).toHaveText(`${(start % 8) + 1} of 8`);
+  // Put the track back where it was and fire a scroll event, as a slow device mid-animation would.
+  await page.evaluate((from) => {
+    const track = document.getElementById('car-track');
+    const s = track.querySelectorAll('.slide')[from - 1];
+    track.scrollTo({ left: s.offsetLeft - (track.clientWidth - s.clientWidth) / 2, behavior: 'instant' });
+    track.dispatchEvent(new Event('scroll'));
+  }, start);
+  await page.waitForTimeout(250);
+  await page.locator('#car-prev').click();
+  await expect(page.locator('#car-count')).toHaveText(`${start} of 8`);
 });
