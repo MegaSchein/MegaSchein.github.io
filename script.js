@@ -2,33 +2,77 @@
   /* ---------- bug hunt ---------- */
   const bugs = [...document.querySelectorAll('[data-bug]')];
   const toggle = document.getElementById('hunt-toggle');
+  const hintBtn = document.getElementById('hunt-hint');
   const count = document.getElementById('hunt-count');
+  const tickets = document.getElementById('hunt-tickets');
   const win = document.getElementById('hunt-win');
+  const huntBar = document.querySelector('.hunt-bar');
   const found = new Set();
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let hunting = false;
+  const run = document.querySelector('.run');
+  // once the intro has played, the lines no longer depend on its animation
+  setTimeout(() => run.classList.add('settled'), 3200);
+
+  const TICKETS = {
+    count: { id: 'BUG-101', title: 'Test summary says undefined and NaN', sev: 'high' },
+    typo: { id: 'BUG-102', title: 'Typo in the very first sentence', sev: 'low' },
+    date: { id: 'BUG-103', title: 'A job that starts in the year 2091', sev: 'medium' },
+    name: { id: 'BUG-104', title: 'My name is crooked', sev: 'cosmetic' },
+    image: { id: 'BUG-105', title: 'The Luup screenshot failed to load', sev: 'high' },
+  };
+
+  const plant = (bug) => {
+    bug.classList.add('is-bugged');
+    if (bug.dataset.bugged !== undefined) { bug.dataset.clean = bug.textContent; bug.textContent = bug.dataset.bugged; }
+    if (bug.dataset.buggedSrc) { bug.dataset.cleanSrc = bug.getAttribute('src'); bug.setAttribute('src', bug.dataset.buggedSrc); }
+    bug.tabIndex = 0;
+  };
+
+  const repair = (bug) => {
+    bug.classList.remove('is-bugged', 'hint');
+    bug.style.removeProperty('--warm');
+    if (bug.dataset.clean !== undefined) { bug.textContent = bug.dataset.clean; delete bug.dataset.clean; }
+    if (bug.dataset.cleanSrc) { bug.setAttribute('src', bug.dataset.cleanSrc); delete bug.dataset.cleanSrc; }
+    bug.removeAttribute('tabindex');
+  };
+
+  const addTicket = (key) => {
+    const t = TICKETS[key];
+    const li = document.createElement('li');
+    const parts = [['t-id', t.id], ['t-title', t.title], [`t-sev sev-${t.sev}`, t.sev], ['t-fixed', 'fixed']];
+    for (const [cls, text] of parts) {
+      const span = document.createElement('span');
+      span.className = cls;
+      span.textContent = text;
+      li.append(span);
+    }
+    tickets.append(li);
+  };
 
   const render = () => {
+    const all = found.size === bugs.length;
     count.textContent = `${found.size}/${bugs.length} filed`;
-    win.hidden = found.size !== bugs.length;
+    win.hidden = !all;
+    hintBtn.hidden = !hunting || all;
+    huntBar.classList.toggle('won', all);
   };
 
   const file = (bug) => {
     if (!hunting || found.has(bug.dataset.bug)) return;
     found.add(bug.dataset.bug);
-    bug.classList.add('filed');
+    repair(bug);
+    bug.classList.add('fixed');
+    setTimeout(() => bug.classList.remove('fixed'), 1400);
+    addTicket(bug.dataset.bug);
     render();
   };
 
   const start = () => {
     hunting = true;
+    run.classList.add('settled');
     document.body.classList.add('hunt');
-    bugs.forEach((bug) => {
-      if (bug.dataset.bugged) {
-        bug.dataset.clean = bug.textContent;
-        bug.textContent = bug.dataset.bugged;
-      }
-      if (!bug.matches('details')) bug.tabIndex = 0;
-    });
+    bugs.forEach(plant);
     toggle.textContent = 'Stop and reset';
     toggle.setAttribute('aria-pressed', 'true');
     count.hidden = false;
@@ -38,31 +82,65 @@
   const stop = () => {
     hunting = false;
     document.body.classList.remove('hunt');
-    bugs.forEach((bug) => {
-      if (bug.dataset.clean) {
-        bug.textContent = bug.dataset.clean;
-        delete bug.dataset.clean;
-      }
-      bug.classList.remove('filed');
-      bug.removeAttribute('tabindex');
-    });
+    bugs.forEach((bug) => { repair(bug); bug.classList.remove('fixed'); });
     found.clear();
+    tickets.replaceChildren();
     toggle.textContent = 'Start bug hunt';
     toggle.setAttribute('aria-pressed', 'false');
     count.hidden = true;
     win.hidden = true;
+    hintBtn.hidden = true;
+    huntBar.classList.remove('won');
+  };
+
+  const hint = () => {
+    const left = bugs.filter((b) => !found.has(b.dataset.bug));
+    if (!left.length) return;
+    const mid = innerHeight / 2;
+    left.sort((a, b) => Math.abs(a.getBoundingClientRect().top - mid) - Math.abs(b.getBoundingClientRect().top - mid));
+    const target = left[0];
+    target.scrollIntoView({ block: 'center', behavior: calm ? 'auto' : 'smooth' });
+    target.classList.add('hint');
+    setTimeout(() => target.classList.remove('hint'), 3200);
   };
 
   toggle.addEventListener('click', () => (hunting ? stop() : start()));
+  hintBtn.addEventListener('click', hint);
+
   document.addEventListener('click', (e) => {
     const bug = e.target.closest('[data-bug]');
-    if (bug) file(bug);
+    if (!bug) return;
+    if (hunting && !found.has(bug.dataset.bug) && bug.closest('summary')) e.preventDefault();
+    file(bug);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
     const bug = e.target.closest && e.target.closest('[data-bug]');
-    if (bug) file(bug);
+    if (bug && hunting) { e.preventDefault(); file(bug); }
   });
+
+  /* warmer / colder: bugs glow as the mouse gets close */
+  let warmQueued = false;
+  let pointerX = 0;
+  let pointerY = 0;
+  document.addEventListener('pointermove', (e) => {
+    if (!hunting || e.pointerType === 'touch') return;
+    pointerX = e.clientX;
+    pointerY = e.clientY;
+    if (warmQueued) return;
+    warmQueued = true;
+    requestAnimationFrame(() => {
+      warmQueued = false;
+      for (const bug of bugs) {
+        if (found.has(bug.dataset.bug)) continue;
+        const r = bug.getBoundingClientRect();
+        const dx = Math.max(r.left - pointerX, 0, pointerX - r.right);
+        const dy = Math.max(r.top - pointerY, 0, pointerY - r.bottom);
+        const warmth = Math.max(0, 1 - Math.hypot(dx, dy) / 240);
+        bug.style.setProperty('--warm', `${Math.round(warmth * 100)}%`);
+      }
+    });
+  }, { passive: true });
 
   /* ---------- theme ---------- */
   const root = document.documentElement;

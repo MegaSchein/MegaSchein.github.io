@@ -21,7 +21,7 @@
 <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#08100D">
+<meta name="theme-color" content="#050A1E">
 <link rel="stylesheet" href="style.css">
 <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
@@ -45,12 +45,12 @@
 <header class="hero" id="intro" data-suite="intro">
   <div class="wrap hero-grid">
     <div>
-      <h1>Erik H. <br>Stenersen</h1>
+      <h1 data-bug="name">Erik H. <br>Stenersen</h1>
       <p class="role">QA Chapter Lead at Salonkee, Luxembourg</p>
     </div>
     <div class="term" aria-label="Summary of what I do">
       <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>run: erik --all</span></div>
-      <pre class="run"><span class="l"><b>PASS</b> leads QA at Salonkee</span><span class="l"><b>PASS</b> turns manual work into automations, once saved a business 7 working days a year</span><span class="l"><b>PASS</b> co-founded a clothing brand about mental health</span><span class="l"><b>PASS</b> speaks 5 languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="5 passed, 0 failed">4 passed, 0 failed</span></pre>
+      <pre class="run"><span class="l"><b>PASS</b> leads QA at Salonkee</span><span class="l"><b>PASS</b> replaces repetitive manual work with scripts and automated tests</span><span class="l"><b>PASS</b> co-founded a clothing brand about mental health</span><span class="l"><b>PASS</b> speaks 5 languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="undefined passed, NaN failed">4 passed, 0 failed</span></pre>
     </div>
   </div>
 </header>
@@ -64,18 +64,20 @@
 
 <main class="wrap">
   <aside class="hunt-bar" aria-label="Bug hunt">
-    <p>I test for a living. Start the hunt and I will plant five bugs on this page. Click each one to file it.</p>
+    <p><strong>Think you can spot a bug?</strong> I hid five on this page. Start the hunt, tap each one to file it, and I'll fix it for you.</p>
     <div class="hunt-controls">
       <button type="button" id="hunt-toggle" aria-pressed="false">Start bug hunt</button>
+      <button type="button" id="hunt-hint" hidden>Give me a hint</button>
       <span id="hunt-count" role="status" aria-live="polite" hidden></span>
     </div>
-    <p id="hunt-win" hidden>All five filed. Good catch. <a href="https://www.linkedin.com/in/stenersen/">Say hello on LinkedIn</a>.</p>
+    <ol id="hunt-tickets" class="tickets" aria-label="Filed bugs" aria-live="polite"></ol>
+    <p id="hunt-win" hidden>All five filed and fixed. Nice catch! <a href="https://www.linkedin.com/in/stenersen/">Say hello on LinkedIn</a>.</p>
   </aside>
 
   <section class="split" id="about" data-suite="what I do">
     <h2>What I do</h2>
     <div class="body prose">
-      <p class="lede">I lead quality. That means deciding how a team tests, what gets automated, and which bugs are worth stopping a release for.</p>
+      <p class="lede">I lead <span data-bug="typo" data-bugged="qualiyt">quality</span>. That means deciding how a team tests, what gets automated, and which bugs are worth stopping a release for.</p>
       <p>I came to QA the long way: freelance design and marketing, then business process analysis. So I look for the manual work that slows people down and automate it. At Salonkee I built Cypress tests that run in CI/CD, took charge of planning the B2C app launch, and mentored teammates.</p>
       <p>I studied Digital Media and Interaction Design, so I also care whether a product feels right to use, not only whether it passes.</p>
     </div>
@@ -89,50 +91,48 @@
         <details class="role-d" open>
           <summary><span class="when">Now</span><span class="what"><strong>Chapter Lead, QA</strong>Salonkee · Jul 2025 to now</span></summary>
           <ul class="cases">
-            <li>promoted to lead the QA chapter after almost three years as a QA engineer on the team</li>
+            <li>Promoted to lead the QA chapter after almost three years as a QA engineer at Salonkee.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when">2022</span><span class="what"><strong>QA</strong>Salonkee · Sep 2022 to Jul 2025</span></summary>
           <ul class="cases">
-            <li>designs, builds and maintains Cypress end-to-end tests, and runs them in CI/CD with the developers</li>
-            <li>took charge of planning and managing the Salonkee B2C app, which led to a fast, successful launch</li>
-            <li>oversees testing for mobile app development and major platform rollouts</li>
-            <li>runs UAT sessions, collects feedback and tracks issues until the release is ready</li>
-            <li>onboards and mentors teammates in Cypress and test automation</li>
-            <li>wrote the team's QA documentation: test cases, how-to guides and bug report templates</li>
-            <li>links QA, development and customer support so platform issues become product improvements</li>
+            <li>Built and maintained Cypress end-to-end tests and ran them in CI/CD with the developers.</li>
+            <li>Took charge of planning and managing the Salonkee B2C app, which launched quickly and successfully.</li>
+            <li>Oversaw testing for the mobile app and major platform rollouts, including UAT sessions.</li>
+            <li>Onboarded and mentored teammates in Cypress and test automation, and wrote the team’s test cases, how-to guides and bug report templates.</li>
+            <li>Worked between QA, developers and customer support so platform issues became product improvements.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when">2021</span><span class="what"><strong>Functional Test Analyst</strong>For-Sight · Apr 2021 to Aug 2022</span></summary>
           <ul class="cases">
-            <li>wrote test plans, test cases and user stories to cut production defects each release</li>
-            <li>ran exploratory and regression testing</li>
-            <li>automated UI regression with Selenium WebDriver in C#</li>
-            <li>brought Xray test management into Jira</li>
-            <li>led a project that saved the business 7 working days a year</li>
+            <li>Wrote test plans, test cases and user stories to cut production defects in every release.</li>
+            <li>Ran exploratory and regression testing.</li>
+            <li>Built automated UI tests with Selenium WebDriver in C#.</li>
+            <li>Brought Xray test management into Jira.</li>
+            <li>Led a project that streamlined daily file handling and saved the business 7 working days a year.</li>
           </ul>
         </details>
       </div>
 
       <div class="exp-group" id="exp-process">
         <h3>Process and marketing</h3>
-        <details class="role-d" data-bug="align">
+        <details class="role-d">
           <summary><span class="when">2020</span><span class="what"><strong>Business Process Analyst</strong>Forth Communication · Dec 2020 to May 2021</span></summary>
           <ul class="cases">
-            <li>mapped business processes with workflow diagrams and Gantt charts</li>
-            <li>automated file handling between departments with scripts</li>
-            <li>worked with upper management on strategy and new processes</li>
+            <li>Mapped business processes with workflow diagrams and Gantt charts.</li>
+            <li>Automated file handling between departments with scripts.</li>
+            <li>Worked with upper management on strategy and new processes.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when" data-bug="date" data-bugged="2091">2019</span><span class="what"><strong>Marketing Executive</strong>Forth Communication · Oct 2019 to Dec 2020</span></summary>
           <ul class="cases">
-            <li>nearly doubled the company's LinkedIn following</li>
-            <li>grew the Twitter following 5%, including accounts such as Ad Age and the IDM</li>
-            <li>built landing pages, guides, infographics and the company Facebook page</li>
-            <li>ran campaigns for three brands, including a hotel CRM and a pensions SaaS product</li>
+            <li>Nearly doubled the company’s LinkedIn following.</li>
+            <li>Grew the Twitter following by 5%, including accounts such as Ad Age and the IDM.</li>
+            <li>Built landing pages, guides, infographics and the company Facebook page.</li>
+            <li>Ran campaigns for three brands, from customer communications to hotel CRM and pension software.</li>
           </ul>
         </details>
       </div>
@@ -142,21 +142,20 @@
         <details class="role-d">
           <summary><span class="when">2018</span><span class="what"><strong>Co-founder</strong>EH1 Marketing · Jan 2018 to Jan 2019</span></summary>
           <ul class="cases">
-            <li>started a non-profit digital media and design agency where students gained professional experience while studying</li>
+            <li>Co-founded a non-profit design agency where students gained professional experience while studying.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when">2017</span><span class="what"><strong>Sales and Marketing Intern</strong>G1 Group · Jan to May 2017</span></summary>
           <ul class="cases">
-            <li>wrote and designed content with the sales and marketing managers</li>
-            <li>ran social media for several venues across multiple platforms</li>
+            <li>Wrote and designed content with the sales and marketing managers.</li>
+            <li>Ran social media for several venues.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when">2014</span><span class="what"><strong>Freelance Digital Media Designer and Marketer</strong>EHS Designs · Sep 2014 to Apr 2020</span></summary>
           <ul class="cases">
-            <li>social media, design and project management for Edinburgh bars and venues</li>
-            <li>clients included G1 Group and the Theatre Royal Bar</li>
+            <li>Did social media, design and project management for Edinburgh bars and venues, including G1 Group and the Theatre Royal Bar.</li>
           </ul>
         </details>
       </div>
@@ -166,13 +165,13 @@
         <details class="role-d">
           <summary><span class="when">2019</span><span class="what"><strong>BSc (Hons) Digital Media and Interaction Design</strong>Edinburgh Napier University</span></summary>
           <ul class="cases">
-            <li>graduated with honours</li>
+            <li>Graduated with honours.</li>
           </ul>
         </details>
         <details class="role-d">
           <summary><span class="when">2013</span><span class="what"><strong>Baccalaureate</strong>European School of Luxembourg</span></summary>
           <ul class="cases">
-            <li>prize for the best graduate performance in IT</li>
+            <li>Won the prize for the best graduate performance in IT.</li>
           </ul>
         </details>
       </div>
@@ -182,8 +181,8 @@
         <details class="role-d">
           <summary><span class="when">2013</span><span class="what"><strong>Hospitality</strong>Luxembourg and Edinburgh · 2013 to 2017</span></summary>
           <ul class="cases">
-            <li>assistant manager of a bar and café in Luxembourg, then bartender and bar supervisor in Edinburgh</li>
-            <li>planned promotional events, trained staff and handled stock and suppliers</li>
+            <li>Was assistant manager of a bar and café in Luxembourg, then a bartender and bar supervisor in Edinburgh.</li>
+            <li>Planned promotional events, trained staff and handled stock and suppliers.</li>
           </ul>
         </details>
       </div>
@@ -202,14 +201,14 @@
           <ul class="plain">
             <li>Angular 19 web app and an Expo (React Native) mobile app</li>
             <li>Node and Express API on PostgreSQL, deployed with Docker Compose and GitHub Actions</li>
-            <li data-bug="contrast">AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
+            <li>AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
             <li>Seven interface languages, with listings and chat translated automatically</li>
             <li>Error monitoring with Sentry and server metrics</li>
           </ul>
           <p><a class="pill" href="https://luup.lu">Open luup.lu</a></p>
         </div>
         <figure class="phone">
-          <img src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
+          <img data-bug="image" data-bugged-src="images/luup-home-missing.png" src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
         </figure>
       </div>
 
@@ -265,7 +264,7 @@
     <h2>Tools</h2>
     <div class="body">
       <ul class="chips" aria-label="Tools">
-        <li>Cypress</li><li><span data-bug="typo" data-bugged="Seleium">Selenium</span></li><li>C#</li><li>CI/CD</li><li>SQL</li><li>Jira</li><li>Xray</li><li>Postman</li><li>GitHub</li><li>TypeScript</li><li>Angular</li><li>Node</li>
+        <li>Cypress</li><li>Selenium</li><li>C#</li><li>CI/CD</li><li>SQL</li><li>Jira</li><li>Xray</li><li>Postman</li><li>GitHub</li><li>TypeScript</li><li>Angular</li><li>Node</li>
       </ul>
       <h3 id="languages">Languages I speak</h3>
       <ul class="chips chips-lang" aria-label="Spoken languages">
