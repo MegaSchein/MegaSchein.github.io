@@ -133,9 +133,8 @@ h3{font-size:1rem;font-weight:500;margin:2rem 0 .75rem;color:var(--slate)}
 .card p{margin:0}
 .card .links{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:auto;padding-top:.5rem}
 .card h3{font:700 1.5rem/1.1 var(--display);letter-spacing:-.03em;margin:0 0 .25rem}
-.card-music{background:#0A1233;color:#EAF0FF;border:1px solid #1B2A5E}
-.card-music h3{color:var(--pass-bright)}
-.card-music a{color:#F0B552}
+.card-music{background:#0F0F0F;color:#F1F1F1;border:1px solid #303030}
+.card-music h3{color:#fff}
 .card-sound{background:var(--amber);color:#1A1204}
 .card-sound a{color:#1A1204}
 .card-sound img{display:block;width:100%;max-width:16rem;height:auto;border-radius:.3rem;margin-bottom:.5rem}
@@ -192,3 +191,14 @@ h3{font-size:1rem;font-weight:500;margin:2rem 0 .75rem;color:var(--slate)}
 
 h3#languages{font:italic 400 1.15rem var(--body);color:var(--slate)}
 .card-music h3{padding-right:3.6rem}
+
+/* buttons (used by the Watch on YouTube link) */
+.btn{display:inline-block;font:500 .9rem var(--display);padding:.8rem 1.4rem;border-radius:99px;border:1.5px solid var(--pass);text-decoration:none;cursor:pointer;line-height:1.2}
+
+/* Wookie Productions: styled like a YouTube page */
+.card-music p{color:#E6E6E6}
+.card-music .eq i{background:#FF3B3B}
+.card-music .yt{align-self:flex-start;background:#D70000;border-color:#D70000;color:#fff}
+.card-music .yt::before{content:"";display:inline-block;margin-right:.6rem;border-left:.65em solid currentColor;border-top:.4em solid transparent;border-bottom:.4em solid transparent}
+.card-music .yt:hover{background:#fff;border-color:#fff;color:#0F0F0F}
+.card-music .links{padding-top:.75rem}

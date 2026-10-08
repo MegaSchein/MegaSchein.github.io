@@ -171,6 +171,13 @@
   addEventListener('resize', update);
   update();
 
+  /* ---------- contact ---------- */
+  // The address is put together here, so it never sits in the page source for scrapers to harvest.
+  const mailAddress = ['stenersenerik', 'yahoo.com'].join('@');
+  const emailLink = document.getElementById('email-link');
+  emailLink.href = `mailto:${mailAddress}`;
+  document.getElementById('email-wrap').hidden = false;
+
   /* ---------- command palette ---------- */
   const dialog = document.getElementById('palette');
   const input = document.getElementById('palette-input');
@@ -185,6 +192,7 @@
     { label: 'Go to: contact', run: go('contact') },
     { label: 'Start or stop the bug hunt', run: () => toggle.click() },
     { label: 'Switch theme', run: toggleTheme },
+    { label: 'Email me', run: () => { location.href = emailLink.href; } },
     { label: 'Open LinkedIn', run: () => open('https://www.linkedin.com/in/stenersen/', '_blank', 'noopener') },
     { label: 'Open GitHub', run: () => open('https://github.com/MegaSchein', '_blank', 'noopener') },
     { label: 'Open luup.lu', run: () => open('https://luup.lu', '_blank', 'noopener') },

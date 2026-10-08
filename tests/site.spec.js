@@ -15,7 +15,8 @@ test('summary count matches the number of PASS lines', async ({ page }) => {
 });
 
 test('every link points to a real https address', async ({ page }) => {
-  const hrefs = await page.locator('main a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  const all = await page.locator('main a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  const hrefs = all.filter((h) => !h.startsWith('mailto:'));
   expect(hrefs.length).toBeGreaterThan(0);
   for (const href of hrefs) expect(href).toMatch(/^https:\/\/[^/]+\.[a-z]{2,}/);
 });
@@ -369,4 +370,57 @@ test('the summary line stays visible after its bug is filed', async ({ page }) =
   // read once, without retrying, so a line that comes back later still fails
   const opacity = await page.locator('#sum').evaluate((el) => getComputedStyle(el).opacity);
   expect(opacity).toBe('1');
+});
+
+test('JavaScript is listed with the tools and in the skills ticker', async ({ page }) => {
+  await expect(page.locator('#tools .chips').first().locator('li', { hasText: /^JavaScript$/ })).toHaveCount(1);
+  const tools = await page.locator('#tools .chips').first().textContent();
+  expect(tools).not.toMatch(/Danish|French|German|Luxembourgish|English/);
+  expect(await page.locator('.ticker-track span', { hasText: /^JavaScript$/ }).count()).toBeGreaterThanOrEqual(1);
+});
+
+test.describe('contact', () => {
+  test('Email is a link in the same row as LinkedIn and GitHub', async ({ page }) => {
+    const row = page.locator('#contact .lede');
+    await expect(row.getByRole('link')).toHaveText(['Email', 'LinkedIn', 'GitHub']);
+    await expect(row.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:stenersenerik@yahoo.com');
+  });
+
+  test('there are no extra contact buttons', async ({ page }) => {
+    await expect(page.getByRole('button', { name: 'Copy address' })).toHaveCount(0);
+    await expect(page.locator('#email-copy, #email-note, .contact-actions')).toHaveCount(0);
+  });
+
+  test('the address is not in the raw page source for scrapers', async ({ request }) => {
+    const html = await (await request.get('/')).text();
+    expect(html).not.toContain('stenersenerik');
+    expect(html).not.toContain('yahoo.com');
+  });
+
+  test('the palette has an email command', async ({ page }) => {
+    await page.keyboard.press('Control+k');
+    await page.locator('#palette-input').fill('email');
+    await expect(page.locator('#palette-list li').first()).toContainText('Email me');
+  });
+
+  test('the email link can be reached from the keyboard', async ({ page }) => {
+    await page.locator('#email-link').focus();
+    await expect(page.locator('#email-link')).toBeFocused();
+  });
+});
+
+test('the Wookie Productions card is black and white with a red watch button', async ({ page }) => {
+  const card = page.locator('.card-music');
+  expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(15, 15, 15)');
+  expect(await card.locator('h3').evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 255, 255)');
+  const watch = card.getByRole('link', { name: 'Watch on YouTube' });
+  await expect(watch).toHaveAttribute('href', 'https://www.youtube.com/user/WookiePr0ductions/');
+  expect(await watch.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(215, 0, 0)');
+});
+
+test('the B2C app work is described as stewardship, as on LinkedIn', async ({ page }) => {
+  const text = await page.locator('body').textContent();
+  expect(text).not.toMatch(/took charge/i);
+  await expect(page.locator('.role-d', { hasText: 'Sep 2022 to Jul 2025' })).toContainText('Acted as steward of the Salonkee B2C app project');
+  await expect(page.locator('#about')).toContainText('kept the B2C app launch moving');
 });
