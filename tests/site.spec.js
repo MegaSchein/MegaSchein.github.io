@@ -437,3 +437,13 @@ test('the Chapter Lead role says what it owns', async ({ page }) => {
   await expect(role).toContainText('cut bugs in production substantially');
   await expect(role).toContainText('nightly end-to-end automation');
 });
+
+test('body text is set in DM Sans, with no serif or leftover Figtree', async ({ page }) => {
+  await page.evaluate(() => document.fonts.ready);
+  const family = await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(family).toContain('DM Sans');
+  expect(family).not.toMatch(/Figtree|Newsreader|Georgia|Times/);
+  expect(await page.evaluate(() => document.fonts.check('16px "DM Sans"'))).toBe(true);
+  const title = await page.locator('.what strong').first().evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(title).toContain('DM Sans');
+});
