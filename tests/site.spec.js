@@ -424,3 +424,16 @@ test('the B2C app work is described as stewardship, as on LinkedIn', async ({ pa
   await expect(page.locator('.role-d', { hasText: 'Sep 2022 to Jul 2025' })).toContainText('Acted as steward of the Salonkee B2C app project');
   await expect(page.locator('#about')).toContainText('kept the B2C app launch moving');
 });
+
+test('the team size is stated as the people led, not as a team total', async ({ page }) => {
+  await expect(page.locator('.run')).toContainText('leads four QA engineers at Salonkee');
+  await expect(page.locator('.role-d', { hasText: 'Jul 2025 to now' })).toContainText('Leads four QA engineers.');
+});
+
+test('the Chapter Lead role says what it owns', async ({ page }) => {
+  const role = page.locator('.role-d', { hasText: 'Jul 2025 to now' });
+  await expect(role).toContainText('Owns the QA chapter’s standards and release sign-off.');
+  await expect(role.locator('.cases li')).toHaveCount(4);
+  await expect(role).toContainText('cut bugs in production substantially');
+  await expect(role).toContainText('nightly end-to-end automation');
+});
