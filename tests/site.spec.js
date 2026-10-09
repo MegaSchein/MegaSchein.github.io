@@ -15,7 +15,8 @@ test('summary count matches the number of PASS lines', async ({ page }) => {
 });
 
 test('every link points to a real https address', async ({ page }) => {
-  const hrefs = await page.locator('main a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  const all = await page.locator('main a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  const hrefs = all.filter((h) => !h.startsWith('mailto:'));
   expect(hrefs.length).toBeGreaterThan(0);
   for (const href of hrefs) expect(href).toMatch(/^https:\/\/[^/]+\.[a-z]{2,}/);
 });
@@ -46,29 +47,143 @@ test('no horizontal scroll on a phone', async ({ page }) => {
   expect(overflow).toBe(false);
 });
 
-test('bug hunt plants five bugs, counts them, and resets cleanly', async ({ page }) => {
-  const cleanSummary = await page.locator('#sum').textContent();
-  await page.getByRole('button', { name: 'Start bug hunt' }).click();
-  await expect(page.locator('#hunt-count')).toHaveText('0/5 filed');
+test.describe('bug hunt', () => {
+  const start = (page) => page.getByRole('button', { name: 'Start bug hunt' }).click();
+  const FIRST_FIVE = '/?bugs=name,count,typo,date,image';
+  const startFirstFive = async (page) => { await page.goto(FIRST_FIVE); await start(page); };
 
-  const bugs = page.locator('[data-bug]');
-  expect(await bugs.count()).toBe(5);
-  for (let i = 0; i < 5; i++) await bugs.nth(i).click();
+  test('the page is clean until the hunt starts', async ({ page }) => {
+    await expect(page.locator('.is-bugged')).toHaveCount(0);
+    await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+    await expect(page.getByText('qualiyt')).toHaveCount(0);
+    await expect(page.locator('.hunt-bar button', { hasText: 'hint' })).toBeHidden();
+  });
 
-  await expect(page.locator('#hunt-count')).toHaveText('5/5 filed');
-  await expect(page.locator('#hunt-win')).toBeVisible();
+  test('starting plants five visible bugs', async ({ page }) => {
+    await startFirstFive(page);
+    await expect(page.locator('#hunt-count')).toHaveText('0/5 filed');
+    await expect(page.locator('.is-bugged')).toHaveCount(5);
+    await expect(page.locator('#sum')).toHaveText('undefined passed, NaN failed');
+    await expect(page.getByText('qualiyt')).toBeVisible();
+    await expect(page.locator('.when', { hasText: '2091' })).toBeVisible();
+    await expect(page.locator('img[data-bug="image"]')).toHaveAttribute('src', /missing/);
+    await expect(page.locator('#hunt-hint')).toBeVisible();
+  });
 
-  await page.getByRole('button', { name: 'Stop and reset' }).click();
-  await expect(page.locator('#hunt-win')).toBeHidden();
-  await expect(page.locator('#sum')).toHaveText(cleanSummary);
-  await expect(page.getByText('Seleium')).toHaveCount(0);
+  test('filing a bug fixes it straight away and adds a ticket', async ({ page }) => {
+    await startFirstFive(page);
+    await page.locator('#sum').click();
+    await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+    await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
+    const ticket = page.locator('#hunt-tickets li');
+    await expect(ticket).toHaveCount(1);
+    await expect(ticket.first()).toContainText('BUG-101');
+    await expect(ticket.first()).toContainText('fixed');
+    // the same bug cannot be filed twice
+    await page.locator('#sum').click();
+    await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
+  });
+
+  test('filing the broken image restores the screenshot', async ({ page }) => {
+    await startFirstFive(page);
+    await page.locator('img[data-bug="image"]').click();
+    await expect(page.locator('img[data-bug="image"]')).toHaveAttribute('src', 'images/luup-home.png');
+  });
+
+  test('finding all five wins and stopping resets everything', async ({ page }) => {
+    await startFirstFive(page);
+    for (const id of ['name', 'count', 'typo', 'date', 'image']) await page.locator(`[data-bug="${id}"]`).click();
+    await expect(page.locator('#hunt-count')).toHaveText('5/5 filed');
+    await expect(page.locator('#hunt-tickets li')).toHaveCount(5);
+    await expect(page.locator('#hunt-win')).toBeVisible();
+    await expect(page.locator('#hunt-hint')).toBeHidden();
+    await expect(page.locator('.is-bugged')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Stop and reset' }).click();
+    await expect(page.locator('#hunt-win')).toBeHidden();
+    await expect(page.locator('#hunt-tickets li')).toHaveCount(0);
+    await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+  });
+
+  test('stopping part-way puts every bug back', async ({ page }) => {
+    await startFirstFive(page);
+    await page.locator('#hunt-hint').click();
+    await page.getByRole('button', { name: 'Stop and reset' }).click();
+    await expect(page.locator('.is-bugged')).toHaveCount(0);
+    await expect(page.locator('.hint')).toHaveCount(0);
+    await expect(page.locator('img[data-bug="image"]')).toHaveAttribute('src', 'images/luup-home.png');
+    await expect(page.locator('.when', { hasText: '2091' })).toHaveCount(0);
+  });
+
+  test('each hunt plants five different bugs picked from a bigger pool', async ({ page }) => {
+    const total = await page.locator('[data-bug]').count();
+    expect(total).toBeGreaterThan(5);
+    const seen = new Set();
+    for (let i = 0; i < 6; i++) {
+      await start(page);
+      const ids = await page.locator('.is-bugged').evaluateAll((els) => els.map((e) => e.dataset.bug).sort());
+      expect(ids).toHaveLength(5);
+      seen.add(ids.join());
+      await page.getByRole('button', { name: 'Stop and reset' }).click();
+      await expect(page.locator('.is-bugged')).toHaveCount(0);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  test('every bug in the pool can be filed and leaves the page clean', async ({ page }) => {
+    const ids = await page.locator('[data-bug]').evaluateAll((els) => els.map((e) => e.dataset.bug));
+    await page.goto(`/?bugs=${ids.join(',')}`);
+    await start(page);
+    await expect(page.locator('#hunt-count')).toHaveText(`0/${ids.length} filed`);
+    for (const id of ids) {
+      const el = page.locator(`[data-bug="${id}"]`);
+      await el.scrollIntoViewIfNeeded();
+      await el.click();
+    }
+    await expect(page.locator('.is-bugged')).toHaveCount(0);
+    await expect(page.locator('#hunt-tickets li')).toHaveCount(ids.length);
+    await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+  });
+
+  test('the hint highlights a bug that is still there', async ({ page }) => {
+    await start(page);
+    await page.locator('#hunt-hint').click();
+    await expect(page.locator('.is-bugged.hint')).toHaveCount(1);
+    const hinted = await page.locator('.is-bugged.hint').getAttribute('data-bug');
+    await page.locator(`[data-bug="${hinted}"]`).click();
+    await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
+  });
+
+  test('bugs glow as the mouse gets closer', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await startFirstFive(page);
+    const box = await page.locator('#sum').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await expect.poll(() => page.locator('#sum').evaluate((el) => el.style.getPropertyValue('--warm'))).toBe('100%');
+    await page.mouse.move(2, 880);
+    await expect.poll(() => page.locator('#sum').evaluate((el) => parseInt(el.style.getPropertyValue('--warm'), 10))).toBeLessThan(100);
+  });
+
+  test('a keyboard user can file a bug with Enter', async ({ page }) => {
+    await startFirstFive(page);
+    await page.locator('#sum').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
+  });
+
+  test('the page still fits a phone while bugs are planted', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto('/?bugs=role,lang,chip,year,name');
+    await start(page);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+  });
 });
 
 test('experience opens a role to show its test cases', async ({ page }) => {
   const second = page.locator('.role-d', { hasText: 'Functional Test Analyst' });
   await expect(second).not.toHaveAttribute('open', '');
   await second.locator('summary').click();
-  await expect(second.getByText('ran exploratory and regression testing')).toBeVisible();
+  await expect(second.getByText('Ran exploratory and regression testing')).toBeVisible();
 });
 
 test('command palette opens with the keyboard, filters, and navigates', async ({ page }) => {
@@ -152,7 +267,7 @@ test.describe('beyond testing', () => {
   test('every photo and design image has a description', async ({ page }) => {
     const imgs = page.locator('#beyond img');
     const n = await imgs.count();
-    expect(n).toBe(16);
+    expect(n).toBe(17);
     for (let i = 0; i < n; i++) expect((await imgs.nth(i).getAttribute('alt'))?.length).toBeGreaterThan(8);
   });
 
@@ -164,7 +279,7 @@ test.describe('beyond testing', () => {
 
   test('the music and brand cards link to real pages', async ({ page }) => {
     await expect(page.getByRole('link', { name: 'Watch on YouTube' })).toHaveAttribute('href', 'https://www.youtube.com/user/WookiePr0ductions/');
-    await expect(page.getByRole('link', { name: 'About Sound Advice' })).toHaveAttribute('href', 'https://erikhstenersen.wixsite.com/mysite/soundadvice');
+    await expect(page.getByRole('link', { name: 'Sound Advice on Instagram' })).toHaveAttribute('href', 'https://www.instagram.com/_soundadvice_/');
     const html = await page.locator('#beyond').innerHTML();
     expect(html).not.toContain('soundadvice.store');
   });
@@ -203,4 +318,192 @@ test('carousel stays on the right photo when a late scroll event arrives mid-ani
   await page.waitForTimeout(250);
   await page.locator('#car-prev').click();
   await expect(page.locator('#car-count')).toHaveText(`${start} of 8`);
+});
+
+test('Luup sits inside Beyond testing, after the experience', async ({ page }) => {
+  await expect(page.locator('#beyond #luup')).toHaveCount(1);
+  await expect(page.locator('section#luup')).toHaveCount(0);
+  const inOrder = await page.evaluate(() => {
+    const y = (sel) => document.querySelector(sel).getBoundingClientRect().top + scrollY;
+    return y('#experience') < y('#luup');
+  });
+  expect(inOrder).toBe(true);
+});
+
+test('hero introduces who Erik is with four facts in the same voice', async ({ page }) => {
+  const lines = await page.locator('.run .l:not(.sum)').allTextContents();
+  expect(lines).toHaveLength(4);
+  expect(lines.join(' ')).toContain('co-founded a clothing brand about mental health');
+  expect(lines.join(' ')).toContain('replaces repetitive manual work with scripts and automated tests');
+  expect(lines.join(' ')).not.toMatch(/7 working days|7 days/);
+  expect(lines.join(' ')).not.toContain('his own product');
+});
+
+test('Beyond testing keeps visitors on the page instead of sending them to Wix for more', async ({ page }) => {
+  const hrefs = await page.locator('#beyond a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  for (const gone of ['/photography', '/visuals', '/projects']) {
+    expect(hrefs.some((h) => h.endsWith(gone)), gone).toBe(false);
+  }
+  await expect(page.getByText('More photography')).toHaveCount(0);
+  await expect(page.getByText('See all projects')).toHaveCount(0);
+});
+
+test('Sound Advice is described in the past tense', async ({ page }) => {
+  const card = page.locator('.card-sound');
+  await expect(card).toContainText('set out to start positive conversations');
+  await expect(card).toContainText('Its motto was');
+  await expect(card).not.toContainText('aims to');
+});
+
+test('What I do adds new facts, and the 7 days stays with the For-Sight project', async ({ page }) => {
+  const about = await page.locator('#about').innerText();
+  expect(about).not.toMatch(/seven working days|7 working days/);
+  expect(about).toContain('Cypress tests that run in CI/CD');
+  await expect(page.locator('#exp-qa')).toContainText('saved the business 7 working days a year');
+});
+
+test('Beyond testing no longer links to the old Wix site', async ({ page }) => {
+  const html = await page.locator('#beyond').innerHTML();
+  expect(html).not.toContain('wixsite.com');
+});
+
+test('role recaps are written as sentences, not lowercase fragments', async ({ page }) => {
+  const items = await page.locator('.cases li').allTextContents();
+  expect(items.length).toBeGreaterThan(15);
+  for (const text of items) {
+    expect(text, text).toMatch(/^[A-Z]/);
+    expect(text, text).toMatch(/\.$/);
+  }
+});
+
+test('past roles are in the past tense', async ({ page }) => {
+  const qa = (await page.locator('.role-d', { hasText: 'Sep 2022 to Jul 2025' }).locator('.cases').textContent()).trim();
+  expect(qa).toMatch(/^Built and maintained/);
+  expect(qa).not.toMatch(/\b(designs|builds|oversees|onboards)\b/);
+});
+
+test('the colour scheme is blue and gold, not the Luup green', async ({ page }) => {
+  const hero = await page.locator('.hero').evaluate((el) => getComputedStyle(el).backgroundColor);
+  const [r, g, b] = hero.match(/\d+/g).map(Number);
+  expect(b).toBeGreaterThan(g);
+  expect(b).toBeGreaterThan(r);
+  const ticker = await page.locator('.ticker').evaluate((el) => getComputedStyle(el).backgroundColor);
+  const [tr, tg, tb] = ticker.match(/\d+/g).map(Number);
+  expect(tb).toBeGreaterThan(tg);
+  expect(tb).toBeGreaterThan(tr);
+  await expect(page.locator('meta[name="theme-color"][media*="dark"]')).toHaveAttribute('content', '#050A1E');
+});
+
+test('the summary line stays visible after its bug is filed', async ({ page }) => {
+  await page.goto('/?bugs=count');
+  await page.waitForTimeout(3300); // let the intro animation finish
+  await page.getByRole('button', { name: 'Start bug hunt' }).click();
+  await page.locator('#sum').click();
+  await page.waitForTimeout(2000); // after the fixed flash has ended, when a restarted fade-in would be hiding it
+  await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+  // read once, without retrying, so a line that comes back later still fails
+  const opacity = await page.locator('#sum').evaluate((el) => getComputedStyle(el).opacity);
+  expect(opacity).toBe('1');
+});
+
+test('JavaScript is listed with the tools and in the skills ticker', async ({ page }) => {
+  await expect(page.locator('#tools .chips').first().locator('li', { hasText: /^JavaScript$/ })).toHaveCount(1);
+  const tools = await page.locator('#tools .chips').first().textContent();
+  expect(tools).not.toMatch(/Danish|French|German|Luxembourgish|English/);
+  expect(await page.locator('.ticker-track span', { hasText: /^JavaScript$/ }).count()).toBeGreaterThanOrEqual(1);
+});
+
+test.describe('contact', () => {
+  test('Email is a link in the same row as LinkedIn and GitHub', async ({ page }) => {
+    const row = page.locator('#contact .lede');
+    await expect(row.getByRole('link')).toHaveText(['Email', 'LinkedIn', 'GitHub']);
+    await expect(row.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:stenersenerik@yahoo.com');
+  });
+
+  test('there are no extra contact buttons', async ({ page }) => {
+    await expect(page.getByRole('button', { name: 'Copy address' })).toHaveCount(0);
+    await expect(page.locator('#email-copy, #email-note, .contact-actions')).toHaveCount(0);
+  });
+
+  test('the address is not in the raw page source for scrapers', async ({ request }) => {
+    const html = await (await request.get('/')).text();
+    expect(html).not.toContain('stenersenerik');
+    expect(html).not.toContain('yahoo.com');
+  });
+
+  test('the palette has an email command', async ({ page }) => {
+    await page.keyboard.press('Control+k');
+    await page.locator('#palette-input').fill('email');
+    await expect(page.locator('#palette-list li').first()).toContainText('Email me');
+  });
+
+  test('the email link can be reached from the keyboard', async ({ page }) => {
+    await page.locator('#email-link').focus();
+    await expect(page.locator('#email-link')).toBeFocused();
+  });
+});
+
+test('the Wookie Productions card is black and white with a red watch button', async ({ page }) => {
+  const card = page.locator('.card-music');
+  expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(15, 15, 15)');
+  expect(await card.locator('h3').evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 255, 255)');
+  const watch = card.getByRole('link', { name: 'Watch on YouTube' });
+  await expect(watch).toHaveAttribute('href', 'https://www.youtube.com/user/WookiePr0ductions/');
+  expect(await watch.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(215, 0, 0)');
+});
+
+test('the B2C app work is described as stewardship, as on LinkedIn', async ({ page }) => {
+  const text = await page.locator('body').textContent();
+  expect(text).not.toMatch(/took charge/i);
+  await expect(page.locator('.role-d', { hasText: 'Sep 2022 to Jul 2025' })).toContainText('Acted as steward of the Salonkee B2C app project');
+  await expect(page.locator('#about')).toContainText('kept the B2C app launch moving');
+});
+
+test('the team size is stated as the people led, not as a team total', async ({ page }) => {
+  await expect(page.locator('.run')).toContainText('leads four QA engineers at Salonkee');
+  await expect(page.locator('.role-d', { hasText: 'Jul 2025 to now' })).toContainText('Lead four QA engineers.');
+});
+
+test('the Chapter Lead role says what it owns', async ({ page }) => {
+  const role = page.locator('.role-d', { hasText: 'Jul 2025 to now' });
+  await expect(role).toContainText('Own the QA chapter’s standards and release sign-off.');
+  await expect(role.locator('.cases li')).toHaveCount(4);
+  await expect(role).toContainText('cut bugs in production substantially');
+  await expect(role).toContainText('nightly end-to-end automation');
+});
+
+test('body text is set in DM Sans, with no serif or leftover Figtree', async ({ page }) => {
+  await page.evaluate(() => document.fonts.ready);
+  const family = await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(family).toContain('DM Sans');
+  expect(family).not.toMatch(/Figtree|Newsreader|Georgia|Times/);
+  expect(await page.evaluate(() => document.fonts.check('16px "DM Sans"'))).toBe(true);
+  const title = await page.locator('.what strong').first().evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(title).toContain('DM Sans');
+});
+
+test('Sound Advice is listed as a co-founder role under design and creative work', async ({ page }) => {
+  const group = page.locator('#exp-design');
+  await expect(group.locator('.role-d').first()).toContainText('Sound Advice');
+  await expect(group.locator('.role-d').first()).toContainText('Co-founder');
+});
+
+test('the experience bullets use one voice, not "Leads" and "Owns"', async ({ page }) => {
+  const lead = await page.locator('.role-d', { hasText: 'Chapter Lead, QA' }).locator('.cases').textContent();
+  expect(lead).not.toMatch(/\b(Leads|Owns)\b/);
+  const early = await page.locator('#exp-early').textContent();
+  expect(early).not.toMatch(/\bWas assistant manager|, then a bartender/);
+});
+
+test.describe('light theme', () => {
+  test.use({ colorScheme: 'light' });
+  test('the intro and summary are light, not black', async ({ page }) => {
+    const lum = async (sel) => {
+      const c = await page.locator(sel).evaluate((el) => getComputedStyle(el).backgroundColor);
+      const [r, g, b] = c.match(/\d+/g).map(Number);
+      return (r + g + b) / 3;
+    };
+    expect(await lum('.hero')).toBeGreaterThan(200);
+    expect(await lum('.term')).toBeGreaterThan(200);
+  });
 });
