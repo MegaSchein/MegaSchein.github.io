@@ -49,6 +49,8 @@ test('no horizontal scroll on a phone', async ({ page }) => {
 
 test.describe('bug hunt', () => {
   const start = (page) => page.getByRole('button', { name: 'Start bug hunt' }).click();
+  const FIRST_FIVE = '/?bugs=name,count,typo,date,image';
+  const startFirstFive = async (page) => { await page.goto(FIRST_FIVE); await start(page); };
 
   test('the page is clean until the hunt starts', async ({ page }) => {
     await expect(page.locator('.is-bugged')).toHaveCount(0);
@@ -58,7 +60,7 @@ test.describe('bug hunt', () => {
   });
 
   test('starting plants five visible bugs', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     await expect(page.locator('#hunt-count')).toHaveText('0/5 filed');
     await expect(page.locator('.is-bugged')).toHaveCount(5);
     await expect(page.locator('#sum')).toHaveText('undefined passed, NaN failed');
@@ -69,7 +71,7 @@ test.describe('bug hunt', () => {
   });
 
   test('filing a bug fixes it straight away and adds a ticket', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     await page.locator('#sum').click();
     await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
     await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
@@ -83,13 +85,13 @@ test.describe('bug hunt', () => {
   });
 
   test('filing the broken image restores the screenshot', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     await page.locator('img[data-bug="image"]').click();
     await expect(page.locator('img[data-bug="image"]')).toHaveAttribute('src', 'images/luup-home.png');
   });
 
   test('finding all five wins and stopping resets everything', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     for (const id of ['name', 'count', 'typo', 'date', 'image']) await page.locator(`[data-bug="${id}"]`).click();
     await expect(page.locator('#hunt-count')).toHaveText('5/5 filed');
     await expect(page.locator('#hunt-tickets li')).toHaveCount(5);
@@ -103,13 +105,43 @@ test.describe('bug hunt', () => {
   });
 
   test('stopping part-way puts every bug back', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     await page.locator('#hunt-hint').click();
     await page.getByRole('button', { name: 'Stop and reset' }).click();
     await expect(page.locator('.is-bugged')).toHaveCount(0);
     await expect(page.locator('.hint')).toHaveCount(0);
     await expect(page.locator('img[data-bug="image"]')).toHaveAttribute('src', 'images/luup-home.png');
     await expect(page.locator('.when', { hasText: '2091' })).toHaveCount(0);
+  });
+
+  test('each hunt plants five different bugs picked from a bigger pool', async ({ page }) => {
+    const total = await page.locator('[data-bug]').count();
+    expect(total).toBeGreaterThan(5);
+    const seen = new Set();
+    for (let i = 0; i < 6; i++) {
+      await start(page);
+      const ids = await page.locator('.is-bugged').evaluateAll((els) => els.map((e) => e.dataset.bug).sort());
+      expect(ids).toHaveLength(5);
+      seen.add(ids.join());
+      await page.getByRole('button', { name: 'Stop and reset' }).click();
+      await expect(page.locator('.is-bugged')).toHaveCount(0);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  test('every bug in the pool can be filed and leaves the page clean', async ({ page }) => {
+    const ids = await page.locator('[data-bug]').evaluateAll((els) => els.map((e) => e.dataset.bug));
+    await page.goto(`/?bugs=${ids.join(',')}`);
+    await start(page);
+    await expect(page.locator('#hunt-count')).toHaveText(`0/${ids.length} filed`);
+    for (const id of ids) {
+      const el = page.locator(`[data-bug="${id}"]`);
+      await el.scrollIntoViewIfNeeded();
+      await el.click();
+    }
+    await expect(page.locator('.is-bugged')).toHaveCount(0);
+    await expect(page.locator('#hunt-tickets li')).toHaveCount(ids.length);
+    await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
   });
 
   test('the hint highlights a bug that is still there', async ({ page }) => {
@@ -123,7 +155,7 @@ test.describe('bug hunt', () => {
 
   test('bugs glow as the mouse gets closer', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await start(page);
+    await startFirstFive(page);
     const box = await page.locator('#sum').boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await expect.poll(() => page.locator('#sum').evaluate((el) => el.style.getPropertyValue('--warm'))).toBe('100%');
@@ -132,7 +164,7 @@ test.describe('bug hunt', () => {
   });
 
   test('a keyboard user can file a bug with Enter', async ({ page }) => {
-    await start(page);
+    await startFirstFive(page);
     await page.locator('#sum').focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#hunt-count')).toHaveText('1/5 filed');
@@ -140,6 +172,7 @@ test.describe('bug hunt', () => {
 
   test('the page still fits a phone while bugs are planted', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto('/?bugs=role,lang,chip,year,name');
     await start(page);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
@@ -358,10 +391,11 @@ test('the colour scheme is blue and gold, not the Luup green', async ({ page }) 
   const [tr, tg, tb] = ticker.match(/\d+/g).map(Number);
   expect(tb).toBeGreaterThan(tg);
   expect(tb).toBeGreaterThan(tr);
-  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#050A1E');
+  await expect(page.locator('meta[name="theme-color"][media*="dark"]')).toHaveAttribute('content', '#050A1E');
 });
 
 test('the summary line stays visible after its bug is filed', async ({ page }) => {
+  await page.goto('/?bugs=count');
   await page.waitForTimeout(3300); // let the intro animation finish
   await page.getByRole('button', { name: 'Start bug hunt' }).click();
   await page.locator('#sum').click();
@@ -427,12 +461,12 @@ test('the B2C app work is described as stewardship, as on LinkedIn', async ({ pa
 
 test('the team size is stated as the people led, not as a team total', async ({ page }) => {
   await expect(page.locator('.run')).toContainText('leads four QA engineers at Salonkee');
-  await expect(page.locator('.role-d', { hasText: 'Jul 2025 to now' })).toContainText('Leads four QA engineers.');
+  await expect(page.locator('.role-d', { hasText: 'Jul 2025 to now' })).toContainText('Lead four QA engineers.');
 });
 
 test('the Chapter Lead role says what it owns', async ({ page }) => {
   const role = page.locator('.role-d', { hasText: 'Jul 2025 to now' });
-  await expect(role).toContainText('Owns the QA chapter’s standards and release sign-off.');
+  await expect(role).toContainText('Own the QA chapter’s standards and release sign-off.');
   await expect(role.locator('.cases li')).toHaveCount(4);
   await expect(role).toContainText('cut bugs in production substantially');
   await expect(role).toContainText('nightly end-to-end automation');
@@ -446,4 +480,30 @@ test('body text is set in DM Sans, with no serif or leftover Figtree', async ({ 
   expect(await page.evaluate(() => document.fonts.check('16px "DM Sans"'))).toBe(true);
   const title = await page.locator('.what strong').first().evaluate((el) => getComputedStyle(el).fontFamily);
   expect(title).toContain('DM Sans');
+});
+
+test('Sound Advice is listed as a co-founder role under design and creative work', async ({ page }) => {
+  const group = page.locator('#exp-design');
+  await expect(group.locator('.role-d').first()).toContainText('Sound Advice');
+  await expect(group.locator('.role-d').first()).toContainText('Co-founder');
+});
+
+test('the experience bullets use one voice, not "Leads" and "Owns"', async ({ page }) => {
+  const lead = await page.locator('.role-d', { hasText: 'Chapter Lead, QA' }).locator('.cases').textContent();
+  expect(lead).not.toMatch(/\b(Leads|Owns)\b/);
+  const early = await page.locator('#exp-early').textContent();
+  expect(early).not.toMatch(/\bWas assistant manager|, then a bartender/);
+});
+
+test.describe('light theme', () => {
+  test.use({ colorScheme: 'light' });
+  test('the intro and summary are light, not black', async ({ page }) => {
+    const lum = async (sel) => {
+      const c = await page.locator(sel).evaluate((el) => getComputedStyle(el).backgroundColor);
+      const [r, g, b] = c.match(/\d+/g).map(Number);
+      return (r + g + b) / 3;
+    };
+    expect(await lum('.hero')).toBeGreaterThan(200);
+    expect(await lum('.term')).toBeGreaterThan(200);
+  });
 });

@@ -21,7 +21,8 @@
 <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#050A1E">
+<meta name="theme-color" content="#E4EAF8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#050A1E" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="style.css">
 <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
@@ -46,11 +47,11 @@
   <div class="wrap hero-grid">
     <div>
       <h1 data-bug="name">Erik H. <br>Stenersen</h1>
-      <p class="role">QA Chapter Lead at Salonkee, Luxembourg</p>
+      <p class="role" data-bug="role" data-bugged="QA Chapter Lead at Salonkee, null">QA Chapter Lead at Salonkee, Luxembourg</p>
     </div>
     <div class="term" aria-label="Summary of what I do">
       <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>run: erik --all</span></div>
-      <pre class="run"><span class="l"><b>PASS</b> leads four QA engineers at Salonkee</span><span class="l"><b>PASS</b> replaces repetitive manual work with scripts and automated tests</span><span class="l"><b>PASS</b> co-founded a clothing brand about mental health</span><span class="l"><b>PASS</b> speaks 5 languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="undefined passed, NaN failed">4 passed, 0 failed</span></pre>
+      <pre class="run"><span class="l"><b>PASS</b> leads four QA engineers at Salonkee</span><span class="l"><b>PASS</b> replaces repetitive manual work with scripts and automated tests</span><span class="l"><b>PASS</b> co-founded a clothing brand about mental health</span><span class="l"><b>PASS</b> speaks <span data-bug="lang" data-bugged="NaN">5</span> languages</span><span class="l sum" id="sum" data-bug="count" data-bugged="undefined passed, NaN failed">4 passed, 0 failed</span></pre>
     </div>
   </div>
 </header>
@@ -92,8 +93,8 @@
           <summary><span class="when">Now</span><span class="what"><strong>Chapter Lead, QA</strong>Salonkee · Jul 2025 to now</span></summary>
           <ul class="cases">
             <li>Promoted to lead the QA chapter after almost three years as a QA engineer at Salonkee.</li>
-            <li>Leads four QA engineers.</li>
-            <li>Owns the QA chapter’s standards and release sign-off.</li>
+            <li>Lead four QA engineers.</li>
+            <li>Own the QA chapter’s standards and release sign-off.</li>
             <li>With the team, cut bugs in production substantially by introducing processes, release standards and nightly end-to-end automation.</li>
           </ul>
         </details>
@@ -143,6 +144,12 @@
       <div class="exp-group" id="exp-design">
         <h3>Design and creative work</h3>
         <details class="role-d">
+          <summary><span class="when">2020</span><span class="what"><strong>Co-founder</strong>Sound Advice · 2020</span></summary>
+          <ul class="cases">
+            <li>Co-founded a lifestyle and clothing brand that started positive conversations about mental health and pointed people to support.</li>
+          </ul>
+        </details>
+        <details class="role-d">
           <summary><span class="when">2018</span><span class="what"><strong>Co-founder</strong>EH1 Marketing · Jan 2018 to Jan 2019</span></summary>
           <ul class="cases">
             <li>Co-founded a non-profit design agency where students gained professional experience while studying.</li>
@@ -184,7 +191,7 @@
         <details class="role-d">
           <summary><span class="when">2013</span><span class="what"><strong>Hospitality</strong>Luxembourg and Edinburgh · 2013 to 2017</span></summary>
           <ul class="cases">
-            <li>Was assistant manager of a bar and café in Luxembourg, then a bartender and bar supervisor in Edinburgh.</li>
+            <li>Assistant manager of a bar and café in Luxembourg, and bartender and bar supervisor in Edinburgh.</li>
             <li>Planned promotional events, trained staff and handled stock and suppliers.</li>
           </ul>
         </details>
@@ -271,7 +278,7 @@
       </ul>
       <h3 id="languages">Languages I speak</h3>
       <ul class="chips chips-lang" aria-label="Spoken languages">
-        <li>Danish</li><li>English</li><li>French</li><li>German</li><li>Luxembourgish</li>
+        <li>Danish</li><li>English</li><li>French</li><li>German</li><li data-bug="chip" data-bugged="Luxembourgsih">Luxembourgish</li>
       </ul>
     </div>
   </section>
@@ -280,7 +287,7 @@
     <h2>Get in touch</h2>
     <div class="body">
       <p class="lede"><span id="email-wrap" hidden><a id="email-link" href="#contact">Email</a> · </span><a href="https://www.linkedin.com/in/stenersen/">LinkedIn</a> · <a href="https://github.com/MegaSchein">GitHub</a></p>
-      <p class="copy">© 2026 Erik H. Stenersen. All rights reserved.</p>
+      <p class="copy">© <span data-bug="year" data-bugged="1970">2026</span> Erik H. Stenersen. All rights reserved.</p>
     </div>
   </footer>
 </main>

@@ -1,6 +1,8 @@
 (() => {
   /* ---------- bug hunt ---------- */
-  const bugs = [...document.querySelectorAll('[data-bug]')];
+  const pool = [...document.querySelectorAll('[data-bug]')];
+  const PER_HUNT = 5;
+  let bugs = [];
   const toggle = document.getElementById('hunt-toggle');
   const hintBtn = document.getElementById('hunt-hint');
   const count = document.getElementById('hunt-count');
@@ -20,6 +22,23 @@
     date: { id: 'BUG-103', title: 'A job that starts in the year 2091', sev: 'medium' },
     name: { id: 'BUG-104', title: 'My name is crooked', sev: 'cosmetic' },
     image: { id: 'BUG-105', title: 'The Luup screenshot failed to load', sev: 'high' },
+    role: { id: 'BUG-106', title: 'My job location says null', sev: 'medium' },
+    lang: { id: 'BUG-107', title: 'The number of languages I speak is NaN', sev: 'medium' },
+    chip: { id: 'BUG-108', title: 'A language is misspelled', sev: 'low' },
+    year: { id: 'BUG-109', title: 'The copyright year is 1970', sev: 'cosmetic' },
+  };
+
+  // ?bugs=name,typo pins the set (handy for sharing or testing); otherwise a fresh random five
+  const pickBugs = () => {
+    const wanted = (new URLSearchParams(location.search).get('bugs') || '').split(',');
+    const pinned = pool.filter((b) => wanted.includes(b.dataset.bug));
+    if (pinned.length) return pinned;
+    const shuffled = [...pool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, PER_HUNT);
   };
 
   const plant = (bug) => {
@@ -72,6 +91,8 @@
     hunting = true;
     run.classList.add('settled');
     document.body.classList.add('hunt');
+    // a fresh random five from the pool each time
+    bugs = pickBugs();
     bugs.forEach(plant);
     toggle.textContent = 'Stop and reset';
     toggle.setAttribute('aria-pressed', 'true');
@@ -83,6 +104,7 @@
     hunting = false;
     document.body.classList.remove('hunt');
     bugs.forEach((bug) => { repair(bug); bug.classList.remove('fixed'); });
+    bugs = [];
     found.clear();
     tickets.replaceChildren();
     toggle.textContent = 'Start bug hunt';
