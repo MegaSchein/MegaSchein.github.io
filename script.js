@@ -8,6 +8,9 @@
   const count = document.getElementById('hunt-count');
   const tickets = document.getElementById('hunt-tickets');
   const win = document.getElementById('hunt-win');
+  const verdict = document.getElementById('hunt-verdict');
+  const verdictSum = document.getElementById('verdict-sum');
+  const verdictList = document.getElementById('verdict-list');
   const huntBar = document.querySelector('.hunt-bar');
   const found = new Set();
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -16,16 +19,17 @@
   // once the intro has played, the lines no longer depend on its animation
   setTimeout(() => run.classList.add('settled'), 3200);
 
+  // how: how each bug would be found in real testing. why: only for high severity, which is what blocks a release.
   const TICKETS = {
-    count: { id: 'BUG-101', title: 'Test summary says undefined and NaN', sev: 'high' },
-    typo: { id: 'BUG-102', title: 'Typo in the very first sentence', sev: 'low' },
-    date: { id: 'BUG-103', title: 'A job that starts in the year 2091', sev: 'medium' },
-    name: { id: 'BUG-104', title: 'My name is crooked', sev: 'cosmetic' },
-    image: { id: 'BUG-105', title: 'The Luup screenshot failed to load', sev: 'high' },
-    role: { id: 'BUG-106', title: 'My job location says null', sev: 'medium' },
-    lang: { id: 'BUG-107', title: 'The number of languages I speak is NaN', sev: 'medium' },
-    chip: { id: 'BUG-108', title: 'A language is misspelled', sev: 'low' },
-    year: { id: 'BUG-109', title: 'The copyright year is 1970', sev: 'cosmetic' },
+    count: { id: 'BUG-101', title: 'Test summary says undefined and NaN', sev: 'high', how: 'Visual check, backed by an automated test on the summary line', why: 'The first thing a reader sees reports its own failure.' },
+    typo: { id: 'BUG-102', title: 'Typo in the very first sentence', sev: 'low', how: 'Visual check while proofreading' },
+    date: { id: 'BUG-103', title: 'A job that starts in the year 2091', sev: 'medium', how: 'Exploratory: read the dates against the timeline' },
+    name: { id: 'BUG-104', title: 'My name is crooked', sev: 'cosmetic', how: 'Visual check' },
+    image: { id: 'BUG-105', title: 'The Luup screenshot failed to load', sev: 'high', how: 'Network and console: a failed image request', why: 'The only visual proof of the product is missing.' },
+    role: { id: 'BUG-106', title: 'My job location says null', sev: 'medium', how: 'Visual check' },
+    lang: { id: 'BUG-107', title: 'The number of languages I speak is NaN', sev: 'medium', how: 'Visual check' },
+    chip: { id: 'BUG-108', title: 'A language is misspelled', sev: 'low', how: 'Visual check while proofreading' },
+    year: { id: 'BUG-109', title: 'The copyright year is 1970', sev: 'cosmetic', how: 'Visual check' },
   };
 
   // ?bugs=name,typo pins the set (handy for sharing or testing); otherwise a fresh random five
@@ -69,10 +73,39 @@
     tickets.append(li);
   };
 
+  // after the hunt: the release call for each bug, taken from its severity
+  const renderVerdict = () => {
+    const keys = bugs.map((b) => b.dataset.bug).sort((a, b) => (TICKETS[b].sev === 'high') - (TICKETS[a].sev === 'high'));
+    const blockers = keys.filter((k) => TICKETS[k].sev === 'high');
+    verdictSum.textContent = blockers.length
+      ? `Of these ${keys.length}, I would block the release for ${blockers.length}. The rest ship with a ticket.`
+      : `None of these ${keys.length} would block the release. They ship with a ticket each.`;
+    verdictList.replaceChildren(...keys.map((k) => {
+      const t = TICKETS[k];
+      const blocks = t.sev === 'high';
+      const li = document.createElement('li');
+      const head = document.createElement('span');
+      head.className = 'v-head';
+      for (const [cls, text] of [['t-id', t.id], ['t-title', t.title], [`v-call${blocks ? ' block' : ''}`, blocks ? 'Blocks release' : 'Ships, fix next']]) {
+        const span = document.createElement('span');
+        span.className = cls;
+        span.textContent = text;
+        head.append(span);
+      }
+      const how = document.createElement('span');
+      how.className = 'v-how';
+      how.textContent = `Found by: ${t.how}.${t.why ? ` ${t.why}` : ''}`;
+      li.append(head, how);
+      return li;
+    }));
+    verdict.hidden = false;
+  };
+
   const render = () => {
     const all = found.size === bugs.length;
     count.textContent = `${found.size}/${bugs.length} filed`;
     win.hidden = !all;
+    if (all) renderVerdict(); else verdict.hidden = true;
     hintBtn.hidden = !hunting || all;
     huntBar.classList.toggle('won', all);
   };
@@ -111,6 +144,8 @@
     toggle.setAttribute('aria-pressed', 'false');
     count.hidden = true;
     win.hidden = true;
+    verdict.hidden = true;
+    verdictList.replaceChildren();
     hintBtn.hidden = true;
     huntBar.classList.remove('won');
   };

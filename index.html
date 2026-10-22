@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Erik H. Stenersen · QA Chapter Lead</title>
-<meta name="description" content="QA Chapter Lead in Luxembourg. Test strategy, test automation with Cypress and Selenium, the builder of Luup, and a background in design and marketing.">
-<meta property="og:title" content="Erik H. Stenersen · QA Chapter Lead">
+<title>Erik H. Stenersen · QA Lead</title>
+<meta name="description" content="QA Lead in Luxembourg. Test strategy, release quality and end-to-end test automation, the builder of Luup, and a background in design and marketing.">
+<meta property="og:title" content="Erik H. Stenersen · QA Lead">
 <meta property="og:description" content="Test strategy, automation and quality engineering. Based in Luxembourg.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://megaschein.github.io/">
@@ -58,12 +58,13 @@
 
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track">
-    <span>Cypress</span><span>Selenium</span><span>C#</span><span>Test strategy</span><span>Jira + Xray</span><span>SQL</span><span>Postman</span><span>Regression testing</span><span>Exploratory testing</span><span>JavaScript</span><span>TypeScript</span><span>Process automation</span>
-    <span>Cypress</span><span>Selenium</span><span>C#</span><span>Test strategy</span><span>Jira + Xray</span><span>SQL</span><span>Postman</span><span>Regression testing</span><span>Exploratory testing</span><span>JavaScript</span><span>TypeScript</span><span>Process automation</span>
+    <span>Test strategy</span><span>Exploratory testing</span><span>Regression testing</span><span>Release sign-off</span><span>Test automation</span><span>Process automation</span>
+    <span>Test strategy</span><span>Exploratory testing</span><span>Regression testing</span><span>Release sign-off</span><span>Test automation</span><span>Process automation</span>
   </div>
 </div>
 
 <main class="wrap">
+  <!-- TODO(Erik): "Selected work" section goes here (case study C, optionally A). See portfolio-fix-brief.md sections 1 and 2. -->
   <aside class="hunt-bar" aria-label="Bug hunt">
     <p><strong>Think you can spot a bug?</strong> I hid five on this page. Start the hunt, tap each one to file it, and I'll fix it for you.</p>
     <div class="hunt-controls">
@@ -72,7 +73,13 @@
       <span id="hunt-count" role="status" aria-live="polite" hidden></span>
     </div>
     <ol id="hunt-tickets" class="tickets" aria-label="Filed bugs" aria-live="polite"></ol>
-    <p id="hunt-win" hidden>All five filed and fixed. Nice catch! <a href="https://www.linkedin.com/in/stenersen/">Say hello on LinkedIn</a>.</p>
+    <p id="hunt-win" hidden>All five filed and fixed. Nice catch! <a href="https://www.linkedin.com/in/stenersen/">Hiring for quality leadership? Let's talk about your first 90 days.</a></p>
+    <div id="hunt-verdict" class="verdict" hidden>
+      <h3>How I decide what blocks a release</h3>
+      <p>High severity blocks the release. Medium, low and cosmetic bugs ship with a ticket and get fixed next.</p>
+      <p id="verdict-sum" role="status"></p>
+      <ul id="verdict-list" class="verdict-list" aria-label="Release call for each bug"></ul>
+    </div>
   </aside>
 
   <section class="split" id="about" data-suite="what I do">
@@ -95,7 +102,7 @@
             <li>Promoted to lead the QA chapter after almost three years as a QA engineer at Salonkee.</li>
             <li>Lead four QA engineers.</li>
             <li>Own the QA chapter’s standards and release sign-off.</li>
-            <li>With the team, cut bugs in production substantially by introducing processes, release standards and nightly end-to-end automation.</li>
+            <li>With the team, introduced processes, release standards and nightly end-to-end automation.</li>
           </ul>
         </details>
         <details class="role-d">
@@ -149,25 +156,6 @@
             <li>Co-founded a lifestyle and clothing brand that started positive conversations about mental health and pointed people to support.</li>
           </ul>
         </details>
-        <details class="role-d">
-          <summary><span class="when">2018</span><span class="what"><strong>Co-founder</strong>EH1 Marketing · Jan 2018 to Jan 2019</span></summary>
-          <ul class="cases">
-            <li>Co-founded a non-profit design agency where students gained professional experience while studying.</li>
-          </ul>
-        </details>
-        <details class="role-d">
-          <summary><span class="when">2017</span><span class="what"><strong>Sales and Marketing Intern</strong>G1 Group · Jan to May 2017</span></summary>
-          <ul class="cases">
-            <li>Wrote and designed content with the sales and marketing managers.</li>
-            <li>Ran social media for several venues.</li>
-          </ul>
-        </details>
-        <details class="role-d">
-          <summary><span class="when">2014</span><span class="what"><strong>Freelance Digital Media Designer and Marketer</strong>EHS Designs · Sep 2014 to Apr 2020</span></summary>
-          <ul class="cases">
-            <li>Did social media, design and project management for Edinburgh bars and venues, including G1 Group and the Theatre Royal Bar.</li>
-          </ul>
-        </details>
       </div>
 
       <div class="exp-group" id="exp-edu">
@@ -189,38 +177,44 @@
       <div class="exp-group" id="exp-early">
         <h3>Earlier work</h3>
         <details class="role-d">
-          <summary><span class="when">2013</span><span class="what"><strong>Hospitality</strong>Luxembourg and Edinburgh · 2013 to 2017</span></summary>
+          <summary><span class="when">2013</span><span class="what"><strong>Design, marketing and hospitality</strong>EH1 Marketing, G1 Group, EHS Designs and bar work · 2013 to 2019</span></summary>
           <ul class="cases">
-            <li>Assistant manager of a bar and café in Luxembourg, and bartender and bar supervisor in Edinburgh.</li>
-            <li>Planned promotional events, trained staff and handled stock and suppliers.</li>
+            <li>Co-founded EH1 Marketing (2018), a non-profit design agency where students gained professional experience while studying.</li>
+            <li>Interned in sales and marketing at G1 Group (2017), writing and designing content and running social media for several venues.</li>
+            <li>Freelanced as EHS Designs (2014 to 2020), doing social media, design and project management for Edinburgh bars and venues, including G1 Group and the Theatre Royal Bar.</li>
+            <li>Worked in hospitality in Luxembourg and Edinburgh (2013 to 2017) as an assistant manager, bartender and bar supervisor, planning events, training staff and handling stock and suppliers.</li>
           </ul>
         </details>
       </div>
     </div>
   </section>
 
+  <section class="split" id="built" data-suite="luup.lu">
+    <h2>Something I built</h2>
+    <div class="body">
+    <div class="luup-card" id="luup">
+      <div class="luup-text">
+        <p class="lede">A peer-to-peer marketplace for buying, selling and sharing locally in Luxembourg. It is live, and I built it end to end.</p>
+        <ul class="plain">
+          <li>Angular 19 web app and an Expo (React Native) mobile app</li>
+          <li>Node and Express API on PostgreSQL, deployed with Docker Compose and GitHub Actions</li>
+          <li>AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
+          <li>Seven interface languages, with listings and chat translated automatically</li>
+          <li>Error monitoring with Sentry and server metrics</li>
+        </ul>
+        <p><a class="pill" href="https://luup.lu">Open luup.lu</a></p>
+      </div>
+      <figure class="phone">
+        <img data-bug="image" data-bugged-src="images/luup-home-missing.png" src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
+      </figure>
+    </div>
+    </div>
+  </section>
+
   <section class="split" id="beyond" data-suite="beyond testing">
     <h2>Beyond testing</h2>
     <div class="body">
-      <p class="lede prose">Before QA I worked in design and marketing. Outside work I build my own product, take photos, make music visuals and design things.</p>
-
-      <h3 class="beyond-h">Something I built</h3>
-      <div class="luup-card" id="luup">
-        <div class="luup-text">
-          <p class="lede">A peer-to-peer marketplace for buying, selling and sharing locally in Luxembourg. It is live, and I built it end to end.</p>
-          <ul class="plain">
-            <li>Angular 19 web app and an Expo (React Native) mobile app</li>
-            <li>Node and Express API on PostgreSQL, deployed with Docker Compose and GitHub Actions</li>
-            <li>AI that writes listing descriptions from photos and finds items from a picture, plus content moderation</li>
-            <li>Seven interface languages, with listings and chat translated automatically</li>
-            <li>Error monitoring with Sentry and server metrics</li>
-          </ul>
-          <p><a class="pill" href="https://luup.lu">Open luup.lu</a></p>
-        </div>
-        <figure class="phone">
-          <img data-bug="image" data-bugged-src="images/luup-home-missing.png" src="images/luup-home.png" width="780" height="1260" alt="The Luup home page on a phone: a search box under the line 'Your neighbourhood, your marketplace'" loading="lazy">
-        </figure>
-      </div>
+      <p class="lede prose">Before QA I worked in design and marketing. Outside work I take photos, make music visuals and design things.</p>
 
       <h3 class="beyond-h">Photography</h3>
       <div class="carousel" id="carousel" role="region" aria-roledescription="carousel" aria-label="Photography">
@@ -274,7 +268,7 @@
     <h2>Tools</h2>
     <div class="body">
       <ul class="chips" aria-label="Tools">
-        <li>Cypress</li><li>Selenium</li><li>C#</li><li>CI/CD</li><li>SQL</li><li>Jira</li><li>Xray</li><li>Postman</li><li>GitHub</li><li>JavaScript</li><li>TypeScript</li><li>Angular</li><li>Node</li>
+        <li>Cypress</li><li>CI/CD</li><li>SQL</li><li>Jira</li><li>Xray</li><li>Postman</li><li>GitHub</li><li>JavaScript</li><li>TypeScript</li><li>Angular</li><li>Node</li>
       </ul>
       <h3 id="languages">Languages I speak</h3>
       <ul class="chips chips-lang" aria-label="Spoken languages">

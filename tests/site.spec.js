@@ -32,8 +32,8 @@ test('experience is grouped by area and each group runs newest first', async ({ 
 });
 
 test('hospitality is kept apart from the testing roles', async ({ page }) => {
-  await expect(page.locator('#exp-qa')).not.toContainText('Hospitality');
-  await expect(page.locator('#exp-early')).toContainText('Hospitality');
+  await expect(page.locator('#exp-qa')).not.toContainText('hospitality', { ignoreCase: true });
+  await expect(page.locator('#exp-early')).toContainText('hospitality', { ignoreCase: true });
 });
 
 test('images have alt text', async ({ page }) => {
@@ -102,6 +102,30 @@ test.describe('bug hunt', () => {
     await expect(page.locator('#hunt-win')).toBeHidden();
     await expect(page.locator('#hunt-tickets li')).toHaveCount(0);
     await expect(page.locator('#sum')).toHaveText('4 passed, 0 failed');
+  });
+
+  test('winning shows the release call: high severity blocks, the rest ship', async ({ page }) => {
+    await startFirstFive(page);
+    await expect(page.locator('#hunt-verdict')).toBeHidden();
+    for (const id of ['name', 'count', 'typo', 'date', 'image']) await page.locator(`[data-bug="${id}"]`).click();
+    await expect(page.locator('#hunt-verdict')).toBeVisible();
+    await expect(page.locator('#hunt-verdict h3')).toHaveText('How I decide what blocks a release');
+    await expect(page.locator('#verdict-sum')).toHaveText('Of these 5, I would block the release for 2. The rest ship with a ticket.');
+    await expect(page.locator('#verdict-list li')).toHaveCount(5);
+    await expect(page.locator('.v-call.block')).toHaveCount(2);
+    await expect(page.locator('#verdict-list li').first()).toContainText('Blocks release');
+    await expect(page.locator('#verdict-list')).toContainText('Found by: Network and console');
+    await page.getByRole('button', { name: 'Stop and reset' }).click();
+    await expect(page.locator('#hunt-verdict')).toBeHidden();
+    await expect(page.locator('#verdict-list li')).toHaveCount(0);
+  });
+
+  test('a hunt with no high-severity bug says nothing blocks the release', async ({ page }) => {
+    await page.goto('/?bugs=name,typo,date,role,year');
+    await start(page);
+    for (const id of ['name', 'typo', 'date', 'role', 'year']) await page.locator(`[data-bug="${id}"]`).click();
+    await expect(page.locator('#verdict-sum')).toHaveText('None of these 5 would block the release. They ship with a ticket each.');
+    await expect(page.locator('.v-call.block')).toHaveCount(0);
   });
 
   test('stopping part-way puts every bug back', async ({ page }) => {
@@ -267,7 +291,7 @@ test.describe('beyond testing', () => {
   test('every photo and design image has a description', async ({ page }) => {
     const imgs = page.locator('#beyond img');
     const n = await imgs.count();
-    expect(n).toBe(17);
+    expect(n).toBe(16);
     for (let i = 0; i < n; i++) expect((await imgs.nth(i).getAttribute('alt'))?.length).toBeGreaterThan(8);
   });
 
@@ -320,14 +344,45 @@ test('carousel stays on the right photo when a late scroll event arrives mid-ani
   await expect(page.locator('#car-count')).toHaveText(`${start} of 8`);
 });
 
-test('Luup sits inside Beyond testing, after the experience', async ({ page }) => {
-  await expect(page.locator('#beyond #luup')).toHaveCount(1);
-  await expect(page.locator('section#luup')).toHaveCount(0);
+test('Luup has its own section after the experience', async ({ page }) => {
+  await expect(page.locator('#built #luup')).toHaveCount(1);
+  await expect(page.locator('#beyond #luup')).toHaveCount(0);
   const inOrder = await page.evaluate(() => {
     const y = (sel) => document.querySelector(sel).getBoundingClientRect().top + scrollY;
-    return y('#experience') < y('#luup');
+    return y('#experience') < y('#luup') && y('#luup') < y('#beyond');
   });
   expect(inOrder).toBe(true);
+});
+
+test('page order: hunt, what I do, experience, Luup, beyond, tools, contact', async ({ page }) => {
+  const ids = await page.evaluate(() => ['.hunt-bar', '#about', '#experience', '#built', '#beyond', '#tools', '#contact'].map((s) => document.querySelector(s).getBoundingClientRect().top + scrollY));
+  expect([...ids].sort((a, b) => a - b)).toEqual(ids);
+});
+
+test('Selenium and C# appear only in the For-Sight entry, and the tools are listed once', async ({ page }) => {
+  const text = await page.locator('body').textContent();
+  expect(text.match(/Selenium/g)).toHaveLength(1);
+  await expect(page.locator('#exp-qa')).toContainText('Selenium WebDriver in C#');
+  expect(await page.locator('.ticker').textContent()).not.toMatch(/Cypress|Selenium|C#|Postman|SQL|Jira|Xray/);
+  await expect(page.locator('#tools .chips').first()).toContainText('Cypress');
+});
+
+test('the unsupported "substantially" claim is gone', async ({ page }) => {
+  expect(await page.locator('body').innerText()).not.toMatch(/substantially/i);
+  await expect(page.locator('#exp-qa')).toContainText('introduced processes, release standards and nightly end-to-end automation');
+});
+
+test('title and description say QA Lead, not Chapter Lead', async ({ page }) => {
+  await expect(page).toHaveTitle('Erik H. Stenersen · QA Lead');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^QA Lead in Luxembourg/);
+});
+
+test('pre-2019 work is collapsed into one Earlier work block', async ({ page }) => {
+  const early = page.locator('#exp-early .role-d');
+  await expect(early).toHaveCount(1);
+  await expect(early).not.toHaveAttribute('open', '');
+  for (const name of ['EH1 Marketing', 'G1 Group', 'EHS Designs', 'hospitality']) await expect(early).toContainText(name);
+  await expect(page.locator('#exp-design')).not.toContainText('EHS Designs');
 });
 
 test('hero introduces who Erik is with four facts in the same voice', async ({ page }) => {
@@ -406,11 +461,11 @@ test('the summary line stays visible after its bug is filed', async ({ page }) =
   expect(opacity).toBe('1');
 });
 
-test('JavaScript is listed with the tools and in the skills ticker', async ({ page }) => {
+test('JavaScript is listed with the tools, and the ticker lists practices not tools', async ({ page }) => {
   await expect(page.locator('#tools .chips').first().locator('li', { hasText: /^JavaScript$/ })).toHaveCount(1);
   const tools = await page.locator('#tools .chips').first().textContent();
   expect(tools).not.toMatch(/Danish|French|German|Luxembourgish|English/);
-  expect(await page.locator('.ticker-track span', { hasText: /^JavaScript$/ }).count()).toBeGreaterThanOrEqual(1);
+  expect(await page.locator('.ticker-track span', { hasText: /^Test strategy$/ }).count()).toBeGreaterThanOrEqual(1);
 });
 
 test.describe('contact', () => {
@@ -468,8 +523,7 @@ test('the Chapter Lead role says what it owns', async ({ page }) => {
   const role = page.locator('.role-d', { hasText: 'Jul 2025 to now' });
   await expect(role).toContainText('Own the QA chapter’s standards and release sign-off.');
   await expect(role.locator('.cases li')).toHaveCount(4);
-  await expect(role).toContainText('cut bugs in production substantially');
-  await expect(role).toContainText('nightly end-to-end automation');
+  await expect(role).toContainText('introduced processes, release standards and nightly end-to-end automation');
 });
 
 test('body text is set in DM Sans, with no serif or leftover Figtree', async ({ page }) => {
