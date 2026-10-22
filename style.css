@@ -202,3 +202,14 @@ h3#languages{font:500 1rem var(--body);color:var(--slate)}
 .card-music .yt::before{content:"";display:inline-block;margin-right:.6rem;border-left:.65em solid currentColor;border-top:.4em solid transparent;border-bottom:.4em solid transparent}
 .card-music .yt:hover{background:#fff;border-color:#fff;color:#0F0F0F}
 .card-music .links{padding-top:.75rem}
+
+/* release call shown after the hunt */
+.verdict{margin:1rem 0 0;padding-top:1rem;border-top:1px solid var(--rule)}
+.verdict h3{margin:0 0 .4rem;font:600 1.05rem var(--body);color:var(--ink)}
+.verdict p{margin:0 0 .6rem}
+.verdict-list{list-style:none;margin:.6rem 0 0;padding:0;display:grid;gap:.45rem}
+.verdict-list li{padding:.55rem .8rem;border-radius:.4rem;background:var(--paper);border:1px solid var(--rule)}
+.v-head{display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:baseline}
+.v-call{margin-left:auto;font:500 .7rem var(--display);padding:.15rem .55rem;border-radius:99px;background:var(--ink);color:var(--paper)}
+.v-call.block{background:var(--hot);color:#fff}
+.v-how{display:block;margin-top:.25rem;font-size:.95rem;color:var(--slate)}
